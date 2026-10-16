@@ -1,0 +1,56 @@
+{%- extends "base.html.jinja" -%}
+
+{%- block body -%}
+{% if account -%}
+<div class="chips">
+  <span class="chip"><i>账号</i><b>{{ account }}</b></span>
+  <span class="chip"><i>状态</i><b>{{ "已绑定" if bound else "游客 / 未绑定" }}</b></span>
+</div>
+{%- endif %}
+
+<div class="panels">
+  <div class="panel">
+    <div class="panel-title">今日 TODAY</div>
+    <div class="big"><b>{{ today.matches }}</b><span>局</span><span class="rate">{{ today.rate }}</span></div>
+    <div class="kv"><i>胜负</i><span>{{ today.victories }} 胜 / {{ today.matches - today.victories }} 负</span></div>
+    <div class="kv"><i>消耗资金</i><b class="gold">{{ today.gold }}</b></div>
+    <div class="kv"><i>漏怪 / 最远</i><span>{{ today.leaks }} / {{ today.best }} 回合</span></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">累计 TOTAL</div>
+    <div class="big"><b>{{ total.matches }}</b><span>局</span><span class="rate">{{ total.rate }}</span></div>
+    <div class="kv"><i>胜负</i><span>{{ total.victories }} 胜 / {{ total.matches - total.victories }} 负</span></div>
+    <div class="kv"><i>消耗资金</i><b class="gold">{{ total.gold }}</b></div>
+    <div class="kv"><i>漏怪 / 最远</i><span>{{ total.leaks }} / {{ total.best }} 回合</span></div>
+  </div>
+</div>
+
+{% if titles -%}
+<div class="medals">
+  {% for t in titles -%}<span>{{ t.name }} ×{{ t.count }}</span>{% endfor -%}
+</div>
+{%- endif %}
+
+{% if recent -%}
+<table class="grid">
+  <thead>
+    <tr><th>时间</th><th>对局</th><th>结果</th><th>回合</th><th>时长</th><th>称号</th><th>消耗</th></tr>
+  </thead>
+  <tbody>
+    {% for m in recent -%}
+    <tr>
+      <td class="dim">{{ m.when }}</td>
+      <td>{{ m.where }}</td>
+      <td class="{{ 'win' if m.win else 'lose' }}">{{ '胜' if m.win else '负' }}</td>
+      <td class="dim">{{ m.rounds }}</td>
+      <td class="dim">{{ m.duration }}</td>
+      <td class="dim">{{ m.title }}</td>
+      <td class="dim">{{ m.gold }}</td>
+    </tr>
+    {% endfor -%}
+  </tbody>
+</table>
+{%- else -%}
+<div class="more">还没有记录到对局。</div>
+{%- endif %}
+{%- endblock -%}

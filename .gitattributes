@@ -1,0 +1,10 @@
+# 统一用 LF 存进仓库（Windows 上编辑也不会带进 CRLF），图片等二进制文件不做转换
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text eol=lf
+*.whl binary
+*.tgz binary

@@ -1,0 +1,9 @@
+{%- extends "base.html.jinja" -%}
+
+{%- block body -%}
+<div class="note note--{{ tone }}">
+  {% for line in lines -%}
+  <p>{% if loop.first %}<span class="icon">{{ icon }}</span>{% endif %}{{ line }}</p>
+  {% endfor -%}
+</div>
+{%- endblock -%}

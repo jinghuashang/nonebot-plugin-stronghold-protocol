@@ -1,0 +1,288 @@
+/* stronghold 菜单模板 · 详情页：头部 chips + 区块 + 功能表 + 快速上手 */
+
+.detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.detail-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.crumb {
+  color: var(--line-3);
+  font-weight: 400;
+}
+
+/* 标签：方角细描边（游戏里那种小铭牌） */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 2px 8px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-2);
+  color: var(--text-lo);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+
+.chip--ours {
+  border-color: var(--mint-700);
+  background: var(--mint-a10);
+  color: var(--mint-400);
+  font-weight: 700;
+}
+
+.chip--muted {
+  color: var(--text-dim);
+}
+
+.block {
+  margin-top: 18px;
+}
+
+.block > h2 {
+  margin-bottom: 8px;
+}
+
+.block > h2 .micro {
+  margin-left: auto;
+}
+
+/* ---- HUD：实时状态 / 今日战报 ------------------------------------------------------------- */
+
+.hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+}
+
+.hud--slim {
+  margin-top: 14px;
+}
+
+.hud-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.hud-item i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}
+
+.hud-item b {
+  font-family: var(--font-num);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--mint-400);
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-item b.gold {
+  color: var(--gold);
+}
+
+.hud-item b.plain {
+  color: var(--text-hi);
+}
+
+/* 五个称号：左侧一道强调色 + 名字同色（颜色取自游戏调色板） */
+.acc-gold {
+  --acc: var(--gold);
+}
+
+.acc-ice {
+  --acc: var(--ice);
+}
+
+.acc-amber {
+  --acc: var(--amber);
+}
+
+.acc-mint {
+  --acc: var(--mint-500);
+}
+
+.acc-red {
+  --acc: var(--red);
+}
+
+.title-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px 10px;
+  margin-top: 10px;
+}
+
+.title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--acc, var(--mint-500));
+  background: var(--bg-2);
+}
+
+.title-name {
+  color: var(--acc, var(--mint-500));
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.title-text {
+  color: var(--text-md);
+  font-size: 12px;
+  font-family: var(--font-num);
+}
+
+.hud-note {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.tag--dim {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+  color: var(--text-dim);
+}
+
+.hint {
+  margin-bottom: 8px;
+  color: var(--text-lo);
+  font-size: 12px;
+}
+
+.hint b {
+  color: var(--mint-400);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* ---- 功能表 ------------------------------------------------------------------------------- */
+
+.func-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+}
+
+.func-table th {
+  padding: 7px 10px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--line-2);
+  color: var(--text-lo);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.func-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-md);
+  font-size: 12.5px;
+  vertical-align: top;
+}
+
+.func-table tbody tr:nth-child(4n + 1) td,
+.func-table tbody tr:nth-child(4n + 2) td {
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.func-table tr:last-child td {
+  border-bottom: none;
+}
+
+.func-table .col-no {
+  width: 36px;
+  color: var(--mint-700);
+  text-align: center;
+}
+
+.func-table .col-func {
+  width: 136px;
+  color: var(--text-hi);
+  font-weight: 600;
+}
+
+.func-table tr.brief td {
+  padding-top: 0;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.func-table tr.is-hidden .col-func {
+  color: var(--text-lo);
+}
+
+/* ---- 快速上手 ----------------------------------------------------------------------------- */
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.quick-grid code {
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  color: var(--text-md);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.quick-grid code:hover {
+  border-color: var(--mint-800);
+  color: var(--mint-400);
+}
+
+.back-hint {
+  color: var(--text-lo);
+  font-size: 12px;
+}
+
+.back-hint b {
+  color: var(--mint-400);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}

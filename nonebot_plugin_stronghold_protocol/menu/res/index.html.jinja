@@ -1,0 +1,75 @@
+{%- extends "base.html.jinja" -%}
+
+{%- block head -%}
+<link rel="stylesheet" href="./css/index.css" />
+{%- endblock -%}
+
+{%- block main -%}
+<header class="hero">
+  <div class="hero-left">
+    <div class="hero-brand">
+      <span class="hero-mark"></span>
+      <div>
+        <h1>{{ server_name | default("机器人帮助菜单") }}</h1>
+        <div class="micro">STRONGHOLD PROTOCOL · BOT HELP</div>
+      </div>
+    </div>
+    <p class="hero-sub">
+      发送 <b>{{ cfg.pfx }}帮助 插件名或序号</b> 查看详情{% if showing_hidden %}（当前含隐藏项，可继续用
+      <b>-H</b>）{% endif %}
+    </p>
+  </div>
+  <div class="hero-stats">
+    <span class="stat"><b>{{ plugin_count }}</b>插件</span>
+    <span class="stat"><b>{{ func_count }}</b>功能</span>
+    {% if hidden_count %}<span class="stat stat--muted"><b>{{ hidden_count }}</b>隐藏</span>{% endif %}
+  </div>
+</header>
+
+{% if live -%}
+<div class="live-bar brackets">
+  <span class="live-dot"></span>
+  <span class="micro live-flag">STATUS</span>
+  <span class="live-text">
+    <b>{{ server_name | default("服务器") }}</b>
+    {%- for item in live.online_items %} <span class="live-sep">/</span> <i>{{ item.label }}</i>
+    <b class="{{ item.cls }}">{{ item.value }}</b>{% endfor -%}
+    {%- for item in live.daily_items %} <span class="live-sep">/</span> <i>{{ item.label }}</i>
+    <b class="{{ item.cls }}">{{ item.value }}</b>{% endfor -%}
+  </span>
+</div>
+{%- else -%}
+<div class="live-bar live-bar--off brackets">
+  <span class="live-dot"></span>
+  <span class="micro live-flag">STATUS</span>
+  <span class="live-text">实时数据不可用（游戏服未连接或未实现接入能力）</span>
+</div>
+{%- endif %}
+
+{% for group in groups -%}
+<section class="group">
+  <h2 class="deco group-title">
+    {{ group.title }}<span class="count">{{ group.cards | length }}</span>
+    <span class="micro">{{ "MODULES" if group.title == "应用" else "LIBRARY" }}</span>
+  </h2>
+  <div class="card-grid">
+    {% for card in group.cards -%}
+    <div class="card flex relative{% if card.is_ours %} card--ours{% endif %}">
+      <div class="index"><span class="no">No.</span>{{ card.no }}</div>
+      <h3>
+        {{ card.info.name }}
+        {%- if card.is_ours %} <span class="tag">🛡 卫戍</span>{% endif %}
+      </h3>
+      <div class="card-meta">
+        {% if card.info.subtitle %}<span>{{ card.info.subtitle }}</span>{% endif %}
+        {% if card.func_count %}<span class="badge">{{ card.func_count }} 功能</span>{% endif %}
+      </div>
+      {% if card.info.description -%}
+      <div class="md card-des">{{ layout(card.info.description, card.info.pmn.markdown) }}</div>
+      {%- endif %}
+    </div>
+    {% endfor -%}
+  </div>
+</section>
+{% endfor -%}
+{%- endblock -%}

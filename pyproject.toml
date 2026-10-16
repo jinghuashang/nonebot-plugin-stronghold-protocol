@@ -1,0 +1,72 @@
+[project]
+name = "nonebot-plugin-stronghold-protocol"
+version = "0.1.0"
+description = "卫戍协议：盟约 QQ 机器人 —— 在线玩家 / 在线对局 / 战绩查询 / 账号绑定 / 日报"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "jinghuashang" }]
+keywords = ["nonebot", "nonebot2", "stronghold", "卫戍协议", "qq", "bot"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "nonebot2>=2.2.0",
+  "httpx>=0.24",
+  "pydantic>=2.0",
+  "tzdata; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+# 命令回复出图（在线 / 对局 / 战绩 / 日报 各一张卡片）。没装就自动回退纯文本。
+images = ["nonebot-plugin-htmlrender>=0.6.7"]
+
+# 图片菜单（/帮助 出图，模板 stronghold）：走 nonebot-plugin-picmenu-next（它自带 htmlrender）。
+# 注意 picmenu-next 要求 Python >= 3.10，所以这里必须是可选项（本插件本体支持 3.9）。
+picmenu = ["nonebot-plugin-picmenu-next>=0.2.0"]
+
+# 跑测试用：需要一个 driver 才能 init NoneBot（生产环境由用户的适配器/驱动器提供）。
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.23",
+  "nonebot2[fastapi]>=2.2.0",
+  "nonebot-adapter-onebot>=2.4.0",
+  "nonebot-plugin-picmenu-next>=0.2.0",
+  "tzdata; sys_platform == 'win32'",
+]
+
+[project.urls]
+Homepage = "https://github.com/jinghuashang/nonebot-plugin-stronghold-protocol"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nonebot_plugin_stronghold_protocol"]
+
+[tool.nonebot]
+adapters = [
+  { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" },
+]
+plugin_name = "nonebot-plugin-stronghold-protocol"
+plugins = ["nonebot_plugin_stronghold_protocol"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+# B008：pydantic 的 Field(default_factory=...) 与 nonebot 的 CommandArg() 都是默认参数里的调用，是它们的惯用法。
+# RUF100：测试里保留 noqa 注释（说明为什么这么写），不因为规则集变化而被判为无用。
+ignore = ["B008", "RUF100"]

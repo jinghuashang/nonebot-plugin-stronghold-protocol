@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+.env
+.env.*
+!.env.example
+data/
+cache/
+config/
+debug/
+
+# 开发与上线资料（部署手册 / 验收记录 / 开发笔记 / 给服务端的任务书）—— 只留本地，不进公开仓库
+# 文件说明见 dev/README.md；确实要发布时把这一行删掉即可
+dev/

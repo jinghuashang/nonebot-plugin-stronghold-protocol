@@ -1,0 +1,328 @@
+/* stronghold 菜单模板 · 基础样式
+   设计语言取自 Stronghold-Protocol 本体（public/css/theme.css）：
+   近黑墨绿面、薄荷主色、金色数字、括号角框、扫描线、技术微标。
+   令牌与游戏同名同值，方便对照：--bg-0..4 / --line..3 / --mint-* / --gold / --text-*。 */
+
+:root {
+  color-scheme: dark;
+
+  /* 面 */
+  --bg-0: #0c0f0e;
+  --bg-1: #141816;
+  --bg-2: #1e2421;
+  --bg-3: #252c29;
+  --bg-4: #2d3632;
+  --bg-glass: rgba(16, 20, 18, 0.86);
+  --line: #2f3a35;
+  --line-2: #3e4b45;
+  --line-3: #58675f;
+
+  /* 主色（薄荷）与强调色 */
+  --mint-500: #4ed8af;
+  --mint-400: #59f4ca;
+  --mint-600: #35d8b4;
+  --mint-glow: #17f9b7;
+  --mint-700: #2a9e7f;
+  --mint-800: #145443;
+  --mint-a10: rgba(78, 216, 175, 0.1);
+  --mint-a20: rgba(78, 216, 175, 0.2);
+  --mint-a35: rgba(78, 216, 175, 0.35);
+  --gold: #ffc600;
+  --gold-a20: rgba(255, 198, 0, 0.2);
+  --amber: #f6a329;
+  --orange: #e85a1a;
+  --red: #e73118;
+  --red-abyss: #ff0024;
+  --ice: #9fd4ff;
+  --ice-a20: rgba(159, 212, 255, 0.2);
+
+  /* 文字 */
+  --text-hi: #f2f2f2;
+  --text-md: #c3cbc7;
+  --text-lo: #8a948f;
+  --text-dim: #5d6863;
+  --text-on-mint: #06110d;
+
+  /* 字体（容器里只有 Noto 系的 CJK，拉丁装饰体缺失时回落到 CJK 栈） */
+  --cjk: 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Source Han Sans SC',
+    'Noto Sans CJK SC', sans-serif;
+  --font-num: 'Bender', 'Rajdhani', 'Oxanium', var(--cjk);
+  --font-mono: 'Bender', 'Oxanium', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* 括号角框（.brackets） */
+  --bk-c: var(--mint-500);
+  --bk-l: 14px;
+  --bk-w: 2px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-0);
+  color: var(--text-md);
+  font-family: var(--cjk);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  width: 810px;
+  padding: 16px;
+}
+
+/* 玻璃面板：近黑 + 细描边 + 淡淡的内高光 */
+.main-wrapper {
+  position: relative;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(78, 216, 175, 0.05) 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg-1) 0%, var(--bg-glass) 100%);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 20px 20px 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 18px 44px rgba(0, 0, 0, 0.55);
+}
+
+/* 扫描线（游戏 .fx-scan 的同款做法，这里压得更淡以免干扰文字） */
+.fx-scan::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+}
+
+/* 括号角框：四个 L 形角（与 theme.css 的 .brackets 完全同一手法） */
+.brackets {
+  position: relative;
+}
+
+.brackets::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--bk-c), var(--bk-c)) top left / var(--bk-l) var(--bk-w) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) top left / var(--bk-w) var(--bk-l) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) top right / var(--bk-l) var(--bk-w) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) top right / var(--bk-w) var(--bk-l) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) bottom left / var(--bk-l) var(--bk-w) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) bottom left / var(--bk-w) var(--bk-l) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) bottom right / var(--bk-l) var(--bk-w) no-repeat,
+    linear-gradient(var(--bk-c), var(--bk-c)) bottom right / var(--bk-w) var(--bk-l) no-repeat;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-hi);
+}
+
+/* 技术微标：游戏 HUD 里的那种全大写小字 */
+.micro {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.micro--mint {
+  color: var(--mint-700);
+}
+
+/* 区块标题：薄荷竖条 + 微标 */
+h2.deco,
+h3.deco {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-hi);
+  letter-spacing: 0.02em;
+}
+
+h2.deco::before,
+h3.deco::before {
+  content: '';
+  width: 3px;
+  height: 1em;
+  background: var(--mint-500);
+  box-shadow: 0 0 8px var(--mint-a35);
+}
+
+.count {
+  min-width: 20px;
+  padding: 0 6px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-3);
+  color: var(--text-lo);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* 面板 / 卡片 */
+.card {
+  position: relative;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 12px 14px;
+}
+
+.flex {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.relative {
+  position: relative;
+}
+
+/* 数字统一等宽，便于对齐 */
+.num,
+.stat b,
+.index,
+td.col-no {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.main-footer {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---- Markdown / 富文本 -------------------------------------------------------------------- */
+
+.md > * + * {
+  margin-top: 6px;
+}
+
+.md p,
+.md li {
+  color: var(--text-md);
+}
+
+.md strong,
+.md b {
+  color: var(--text-hi);
+}
+
+.md h1,
+.md h2 {
+  font-size: 15px;
+  color: var(--text-hi);
+}
+
+.md h3,
+.md h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-hi);
+  letter-spacing: 0.02em;
+}
+
+.md h3::before,
+.md h4::before {
+  content: '';
+  width: 3px;
+  height: 1em;
+  background: var(--mint-500);
+}
+
+.md ul,
+.md ol {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.md li::marker {
+  color: var(--mint-600);
+}
+
+.md code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  padding: 0 4px;
+  color: var(--mint-400);
+}
+
+.md pre {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  overflow: hidden;
+}
+
+.md pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-md);
+}
+
+.md blockquote {
+  margin: 0;
+  padding: 4px 0 4px 10px;
+  border-left: 2px solid var(--mint-700);
+  color: var(--text-lo);
+}
+
+.md table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.md th,
+.md td {
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.md a {
+  color: var(--mint-400);
+}
+
+.md img {
+  max-width: 100%;
+  border: 1px solid var(--line);
+}

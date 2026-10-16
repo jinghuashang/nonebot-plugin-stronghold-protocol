@@ -1,0 +1,287 @@
+/* stronghold 菜单模板 · 首页：HUD 头 + 统计 + 实时状态条 + 分组卡片 */
+
+/* ---- 头部 ---------------------------------------------------------------------------------- */
+
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-mark {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: 1px solid var(--mint-800);
+  background: linear-gradient(160deg, var(--mint-a20) 0%, transparent 70%);
+  position: relative;
+}
+
+.hero-mark::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  background: var(--mint-500);
+  box-shadow: 0 0 10px var(--mint-glow);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.hero-sub {
+  margin-top: 6px;
+  color: var(--text-lo);
+  font-size: 12px;
+}
+
+.hero-sub b {
+  color: var(--mint-400);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.stat {
+  min-width: 62px;
+  padding: 5px 10px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-2);
+  text-align: center;
+  color: var(--text-lo);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.stat b {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mint-400);
+  line-height: 1.25;
+}
+
+.stat--muted b {
+  color: var(--text-lo);
+}
+
+/* ---- 实时状态条（括号角框面板）------------------------------------------------------------ */
+
+.live-bar {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--mint-800);
+  background:
+    linear-gradient(90deg, var(--mint-a10) 0%, transparent 70%),
+    var(--bg-1);
+  --bk-l: 12px;
+}
+
+.live-flag {
+  flex: none;
+  margin-top: 1px;
+  padding: 1px 6px;
+  border: 1px solid var(--mint-800);
+  background: var(--mint-a10);
+  color: var(--mint-500);
+}
+
+.live-text {
+  flex: 1;
+  color: var(--text-md);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.live-text b {
+  color: var(--text-hi);
+}
+
+.live-text .num {
+  color: var(--mint-400);
+  font-weight: 700;
+}
+
+/* 消耗资金 / 漏怪这类数字用金色（游戏里价格就是金色） */
+.live-text .gold {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.live-sep {
+  margin: 0 5px;
+  color: var(--line-3);
+}
+
+.live-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-top: 7px;
+  background: var(--mint-500);
+  box-shadow: 0 0 8px var(--mint-glow);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.live-bar--off {
+  border-color: var(--line-2);
+  background: var(--bg-1);
+  --bk-c: var(--line-3);
+}
+
+.live-bar--off .live-dot {
+  background: var(--text-dim);
+  box-shadow: none;
+}
+
+.live-bar--off .live-text {
+  color: var(--text-lo);
+}
+
+/* ---- 分组 ---------------------------------------------------------------------------------- */
+
+.group {
+  margin-top: 20px;
+}
+
+.group-title {
+  margin-bottom: 10px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* ---- 插件卡片 ------------------------------------------------------------------------------ */
+
+.card-grid .card {
+  min-height: 112px;
+  background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+}
+
+.card-grid .card:hover {
+  border-color: var(--line-2);
+}
+
+.card--ours {
+  border-color: var(--mint-800);
+  background:
+    linear-gradient(180deg, var(--mint-a10) 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-3) 0%, var(--bg-2) 100%);
+  --bk-l: 12px;
+}
+
+.card--ours::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--mint-500), var(--mint-500)) top left / var(--bk-l) var(--bk-w) no-repeat,
+    linear-gradient(var(--mint-500), var(--mint-500)) top left / var(--bk-w) var(--bk-l) no-repeat,
+    linear-gradient(var(--mint-500), var(--mint-500)) bottom right / var(--bk-l) var(--bk-w) no-repeat,
+    linear-gradient(var(--mint-500), var(--mint-500)) bottom right / var(--bk-w) var(--bk-l) no-repeat;
+}
+
+.card-grid h3 {
+  padding-right: 36px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-hi);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.badge {
+  padding: 1px 7px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-3);
+  color: var(--text-lo);
+  font-weight: 600;
+}
+
+.card--ours .badge {
+  border-color: var(--mint-800);
+  background: var(--mint-a10);
+  color: var(--mint-500);
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--mint-800);
+  background: var(--mint-a10);
+  color: var(--mint-500);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.index {
+  position: absolute;
+  top: 9px;
+  right: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--line-3);
+}
+
+.index .no {
+  margin-right: 1px;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.card-des {
+  max-height: 104px;
+  overflow: hidden;
+  font-size: 12.5px;
+}
+
+.card-des h1,
+.card-des h2,
+.card-des h3 {
+  font-size: 13px;
+}
+
+/* 头部左侧排布（品牌 + 微标） */
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.live-text i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}

@@ -1,0 +1,74 @@
+/* stronghold 菜单模板 · 浅色变体（可选）
+   开启方式：PMN_STRONGHOLD_LIGHT=true。只覆盖令牌与少数面，布局与组件不变。
+   默认是游戏本体的近黑墨绿（设计语言就是暗色），浅色只是给亮色聊天窗口留的后路。 */
+
+:root {
+  color-scheme: light;
+
+  --bg-0: #eef1ef;
+  --bg-1: #f7f9f8;
+  --bg-2: #ffffff;
+  --bg-3: #eaeceb;
+  --bg-4: #dfe3e1;
+  --bg-glass: rgba(255, 255, 255, 0.9);
+  --line: #d3d9d6;
+  --line-2: #bfc7c3;
+  --line-3: #9aa5a0;
+
+  --mint-400: #0f9c78;
+  --mint-500: #12876a;
+  --mint-600: #0d7a5f;
+  --mint-700: #0b6b53;
+  --mint-800: #b7d8cd;
+  --mint-glow: #12876a55;
+  --mint-a10: rgba(18, 135, 106, 0.1);
+  --mint-a20: rgba(18, 135, 106, 0.2);
+  --mint-a35: rgba(18, 135, 106, 0.35);
+
+  --gold: #a97400;
+  --gold-a20: rgba(169, 116, 0, 0.18);
+  --amber: #b06a00;
+  --orange: #b8490f;
+  --red: #b32410;
+  --ice: #2b6ea8;
+
+  --text-hi: #111816;
+  --text-md: #3c4643;
+  --text-lo: #616c68;
+  --text-dim: #8b9791;
+  --text-on-mint: #ffffff;
+}
+
+body {
+  background: var(--bg-0);
+}
+
+.main-wrapper {
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-glass) 100%);
+  box-shadow: 0 12px 30px rgba(16, 24, 20, 0.12);
+}
+
+.fx-scan::before {
+  display: none;
+}
+
+.card-grid .card,
+.card--ours {
+  background: var(--bg-2);
+}
+
+.live-bar {
+  background: linear-gradient(90deg, var(--mint-a10) 0%, transparent 70%), var(--bg-2);
+}
+
+.func-table {
+  background: var(--bg-2);
+}
+
+.func-table th {
+  background: var(--bg-3);
+}
+
+.md pre {
+  background: var(--bg-3);
+}

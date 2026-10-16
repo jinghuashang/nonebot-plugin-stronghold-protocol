@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/base.css" />
+    {% if cfg.light -%}<link rel="stylesheet" href="./css/light.css" />{% endif %}
+    <link rel="stylesheet" href="./katex/katex.min.b64_fonts.css" />
+    {% block head %}{% endblock -%}
+    {% for f in cfg.additional_css -%}
+    <link rel="stylesheet" href="./local-file/?path={{ f | url_encode | safe }}" />
+    {% endfor -%}
+  </head>
+  <body class="sp">
+    <main>
+      <div class="main-wrapper brackets fx-scan">
+        {% block main %}{% endblock -%}
+        <div class="main-footer">
+          {{ server_name | default("") }}{% if server_name %} · {% endif %}生成于 {{ now_text | default("") }} ·
+          {{ plugin_name | default("nonebot-plugin-stronghold-protocol") }} v{{ plugin_version | default("0.0.0") }}
+        </div>
+      </div>
+    </main>
+  </body>
+  <script src="./katex/katex.min.js"></script>
+  <script src="./katex/mathtex-script-type.min.js"></script>
+  {% block script %}{% endblock -%}
+</html>

@@ -1,0 +1,62 @@
+{%- extends "base.html.jinja" -%}
+
+{% set is_md = info.pmn.markdown -%}
+
+{%- block head -%}
+<link rel="stylesheet" href="./css/detail.css" />
+{%- endblock -%}
+
+{%- block main -%}
+<header class="detail-header">
+  <div class="micro micro--mint">HELP / {{ info.plugin_id or info.name }} / {{ func.func if func else '?' }}</div>
+  <div class="detail-title">
+    <h1>{{ info.name }}{% if func %} <span class="crumb">&gt;</span> {{ func.func }}{% endif %}</h1>
+    <span class="detail-sub">
+      {{ info.subtitle }}{% if func_index is not none %} · 第 {{ func_index + 1 }} 个功能{% endif %}
+    </span>
+  </div>
+  <div class="chips">
+    {% if is_ours %}<span class="chip chip--ours">🛡 卫戍协议</span>{% endif %}
+    <span class="chip">{{ plugin_type }}</span>
+    <span class="chip chip--muted">No.{{ info_index + 1 }}</span>
+  </div>
+</header>
+
+{% if live -%}
+<div class="hud hud--slim">
+  {% for item in live.online_items -%}
+  <span class="hud-item"><i>{{ item.label }}</i><b class="{{ item.cls }}">{{ item.value }}</b></span>
+  {% endfor -%}
+  {% for item in live.daily_items -%}
+  <span class="hud-item"><i>{{ item.label }}</i><b class="{{ item.cls }}">{{ item.value }}</b></span>
+  {% endfor %}
+</div>
+{%- endif %}
+
+{% if func -%}
+<section class="block">
+  <h2 class="deco">触发方式<span class="micro">TRIGGER</span></h2>
+  <div class="card md">{{ layout(func.trigger_method, is_md) }}</div>
+</section>
+<section class="block">
+  <h2 class="deco">触发条件<span class="micro">CONDITION</span></h2>
+  <div class="card md">{{ layout(func.trigger_condition, is_md) }}</div>
+</section>
+<section class="block">
+  <h2 class="deco">简要介绍<span class="micro">BRIEF</span></h2>
+  <div class="card md">{{ layout(func.brief_des, is_md) }}</div>
+</section>
+<section class="block">
+  <h2 class="deco">详细用法<span class="micro">DETAIL</span></h2>
+  <div class="card md">{{ layout(func.detail_des, is_md) }}</div>
+</section>
+<section class="block back-hint">
+  <p>
+    发送 <b>{{ cfg.pfx }}帮助 {{ info_index + 1 }}</b> 回到「{{ info.name }}」的功能列表
+    {%- if (not showing_hidden) or user_can_see_hidden %}，加 <b>-H</b> 可看隐藏项{% endif %}
+  </p>
+</section>
+{%- else -%}
+<section class="block"><div class="card">这个功能没有详情内容。</div></section>
+{%- endif %}
+{%- endblock -%}

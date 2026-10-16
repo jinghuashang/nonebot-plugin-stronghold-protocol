@@ -1,0 +1,113 @@
+{%- extends "base.html.jinja" -%}
+
+{% set is_md = info.pmn.markdown -%}
+
+{%- block head -%}
+<link rel="stylesheet" href="./css/detail.css" />
+{%- endblock -%}
+
+{%- block main -%}
+<header class="detail-header">
+  <div class="micro micro--mint">HELP / {{ info.plugin_id or info.name }}</div>
+  <div class="detail-title">
+    <h1>{{ info.name }}</h1>
+    {% if info.subtitle %}<span class="detail-sub">{{ info.subtitle }}</span>{% endif %}
+  </div>
+  <div class="chips">
+    {% if is_ours %}<span class="chip chip--ours">🛡 卫戍协议</span>{% endif %}
+    <span class="chip">{{ plugin_type }}</span>
+    {% for a in adapters %}<span class="chip">{{ a }}</span>{% endfor %}
+    {% if info.plugin_id %}<span class="chip chip--muted">{{ info.plugin_id }}</span>{% endif %}
+    <span class="chip chip--muted">No.{{ info_index + 1 }}</span>
+  </div>
+</header>
+
+{% if live -%}
+<section class="block">
+  <h2 class="deco">服务器状态<span class="micro">LIVE</span></h2>
+  <div class="hud">
+    {% for item in live.online_items -%}
+    <span class="hud-item"><i>{{ item.label }}</i><b class="{{ item.cls }}">{{ item.value }}</b></span>
+    {% endfor -%}
+    {% for item in live.daily_items -%}
+    <span class="hud-item"><i>{{ item.label }}</i><b class="{{ item.cls }}">{{ item.value }}</b></span>
+    {% endfor -%}
+  </div>
+  {% if live.title_rows -%}
+  <div class="title-grid">
+    {% for row in live.title_rows -%}
+    <div class="title-row acc-{{ row.accent }}">
+      <span class="title-name">{{ row.name }}</span>
+      <span class="title-text">{{ row.text }}</span>
+    </div>
+    {% endfor -%}
+  </div>
+  <p class="hud-note">今日战报 · {{ live.date }}{% if live.today_players %} · 参战 {{ live.today_players }} 人{% endif %}</p>
+  {%- endif %}
+</section>
+{%- endif %}
+
+{% if info.description -%}
+<section class="block">
+  <h2 class="deco">简介<span class="micro">INTRO</span></h2>
+  <div class="card md">{{ layout(info.description, is_md) }}</div>
+</section>
+{%- endif %}
+
+{% if info.usage -%}
+<section class="block">
+  <h2 class="deco">用法<span class="micro">USAGE</span></h2>
+  <div class="card md">{{ layout(info.usage, is_md) }}</div>
+</section>
+{%- endif %}
+
+{% if func_entries -%}
+<section class="block">
+  <h2 class="deco">功能<span class="count">{{ func_count }}</span><span class="micro">COMMANDS</span></h2>
+  {% if (not showing_hidden) or user_can_see_hidden -%}
+  <p class="hint">
+    发送 <b>{{ cfg.pfx }}帮助 {{ info_index + 1 }} 序号</b> 查看某个功能的详细用法
+  </p>
+  {%- endif %}
+  <table class="func-table">
+    <thead>
+      <tr><th class="col-no">#</th><th class="col-func">功能</th><th>触发方式</th><th>触发条件</th></tr>
+    </thead>
+    <tbody>
+      {% for entry in func_entries -%}
+      <tr{% if entry.func.hidden %} class="is-hidden"{% endif %}>
+        <td class="col-no">{{ entry.no }}</td>
+        <td class="col-func">
+          {{ entry.func.func }}{% if entry.func.hidden %} <span class="tag tag--dim">隐藏</span>{% endif %}
+        </td>
+        <td class="md">{{ layout(entry.func.trigger_method, is_md) }}</td>
+        <td class="md">{{ layout(entry.func.trigger_condition, is_md) }}</td>
+      </tr>
+      {% if entry.func.brief_des -%}
+      <tr class="brief">
+        <td class="col-no"></td>
+        <td class="md" colspan="3">{{ layout(entry.func.brief_des, is_md) }}</td>
+      </tr>
+      {%- endif %}
+      {% endfor -%}
+    </tbody>
+  </table>
+</section>
+{%- endif %}
+
+{% if is_ours -%}
+<section class="block">
+  <h2 class="deco">快速上手<span class="micro">QUICK START</span></h2>
+  <div class="quick-grid">
+    <code>{{ cfg.pfx }}在线</code>
+    <code>{{ cfg.pfx }}对局</code>
+    <code>{{ cfg.pfx }}战绩</code>
+    <code>{{ cfg.pfx }}日报</code>
+    <code>{{ cfg.pfx }}绑定 &lt;游戏账号邮箱&gt;</code>
+    <code>{{ cfg.pfx }}验证 &lt;验证码&gt;</code>
+    <code>{{ cfg.pfx }}我的账号</code>
+    <code>{{ cfg.pfx }}解绑</code>
+  </div>
+</section>
+{%- endif %}
+{%- endblock -%}

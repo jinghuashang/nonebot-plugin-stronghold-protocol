@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <style>{{ css }}</style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <div class="head">
+          <div>
+            <h1>{{ title }}</h1>
+            {% if subtitle %}<div class="sub">{{ subtitle }}</div>{% endif %}
+          </div>
+          {% if micro %}<div class="micro">{{ micro }}</div>{% endif %}
+        </div>
+        {% block body %}{% endblock -%}
+        <div class="foot">
+          <span>{{ brand }}</span>
+          <span>{{ generated_at }}</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
