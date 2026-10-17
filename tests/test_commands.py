@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from urllib.parse import quote
 
 import nonebot
@@ -357,3 +358,47 @@ async def test_bind_note_uses_note_card(plugin_service, bridge_server, monkeypat
     assert seen["kind"] == "note"
     assert seen["tone"] == "ok"
     assert any("验证码已发到 a****@example.com" in line for line in seen["lines"])
+
+
+# ---- 日报开关（群里就能配，仅管理员）------------------------------------------------------------
+
+async def test_report_toggle_requires_admin(plugin_service):
+    bot = make_bot()
+    await dispatch(bot, group_event("/日报 开启", user_id=10001))
+    assert "只有管理员" in bot.reply
+    assert plugin_service.report_group_enabled(GROUP_ID) is True, "配置里的默认值不能被普通成员改"
+    assert plugin_service.report_store.state(GROUP_ID) is None, "被拒绝的命令不该落盘"
+
+
+async def test_report_toggle_by_admin(plugin_service):
+    plugin_service.config.stronghold_admins = [10002]
+
+    bot = make_bot()
+    await dispatch(bot, group_event("/日报 关闭", user_id=10002))
+    assert "已关闭" in bot.reply
+    assert plugin_service.report_group_enabled(GROUP_ID) is False
+    assert plugin_service.report_groups() == [], "关掉之后调度器就不该再推这个群"
+
+    await dispatch(bot, group_event("/日报 开启", user_id=10002))
+    assert "已开启" in bot.reply
+    assert plugin_service.report_group_enabled(GROUP_ID) is True
+    assert plugin_service.report_groups() == [GROUP_ID]
+
+    doc = json.loads(plugin_service.report_store.path.read_text(encoding="utf-8"))
+    assert doc["groups"][str(GROUP_ID)]["by"] == "10002", "谁改的要记下来"
+
+
+async def test_report_toggle_in_private_chat_is_rejected(plugin_service):
+    plugin_service.config.stronghold_admins = [10002]
+    bot = make_bot()
+    await dispatch(bot, private_event("/日报 开启", user_id=10002))
+    assert "只在群里" in bot.reply
+    assert plugin_service.report_store.state(10002) is None
+
+
+async def test_report_toggle_is_idempotent(plugin_service):
+    plugin_service.config.stronghold_admins = [10002]
+    await dispatch(make_bot(), group_event("/日报 关闭", user_id=10002))
+    bot = make_bot()
+    await dispatch(bot, group_event("/日报 关闭", user_id=10002))
+    assert "本来就是关闭的" in bot.reply

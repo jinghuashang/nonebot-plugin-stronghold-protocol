@@ -12,9 +12,10 @@ import os
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Sequence
 
 BINDING_FILE_VERSION = 1
+REPORT_FILE_VERSION = 1
 
 
 @dataclass
@@ -196,3 +197,103 @@ class BindingStore:
 
     def peek_pending(self, qq: object) -> Optional[PendingBind]:
         return self._pending.get(str(qq))
+
+
+class ReportGroupStore:
+    """群日报订阅开关（JSON 文件，tmp + rename 原子写）。
+
+    只记「管理员显式改过」的群：``True`` = 开过，``False`` = 关过。
+    没记录的群跟 ``stronghold_report_groups`` 的默认值走 —— 在默认列表里就推，
+    这样老部署升级后行为不变，又允许群里随时开关。
+    """
+
+    def __init__(self, path: Optional[Path] = None):
+        self.path = Path(path) if path else default_data_dir() / "report_groups.json"
+        self._groups: Dict[str, Dict[str, object]] = {}
+        self._loaded = False
+
+    # ---- 读写 ------------------------------------------------------------------------------------
+
+    def load_sync(self) -> None:
+        """同步读取（启动/首次访问时一次；文件损坏或缺失都当空表）。"""
+        self._loaded = True
+        try:
+            doc = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return
+        groups = doc.get("groups") if isinstance(doc, dict) else None
+        if not isinstance(groups, dict):
+            return
+        for key, row in groups.items():
+            if isinstance(row, dict) and isinstance(row.get("enabled"), bool):
+                self._groups[str(key)] = dict(row)
+
+    def _ensure_loaded(self) -> None:
+        if not self._loaded:
+            self.load_sync()
+
+    def _write_sync(self) -> None:
+        doc = {
+            "version": REPORT_FILE_VERSION,
+            "savedAt": int(time.time() * 1000),
+            "groups": dict(sorted(self._groups.items())),
+        }
+        try:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = self.path.with_suffix(self.path.suffix + ".tmp")
+            tmp.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            os.replace(tmp, self.path)
+        except OSError:
+            # 存不下就当这次没改成功：下次推送按旧状态走，不能因此让命令报错。
+            pass
+
+    # ---- 查询/修改 --------------------------------------------------------------------------------
+
+    def state(self, group_id: object) -> Optional[bool]:
+        """这个群被显式改过吗？``True``/``False`` = 改过，``None`` = 没动过（跟默认值）。"""
+        self._ensure_loaded()
+        row = self._groups.get(str(group_id))
+        return bool(row["enabled"]) if row else None
+
+    def set_enabled(self, group_id: object, enabled: bool, by: object = "") -> bool:
+        """记下开关；返回「结果和之前相比是否变了」。"""
+        self._ensure_loaded()
+        previous = self.state(group_id)
+        self._groups[str(group_id)] = {
+            "enabled": bool(enabled),
+            "by": str(by) if by is not None else "",
+            "at": int(time.time() * 1000),
+        }
+        self._write_sync()
+        return previous is not bool(enabled)
+
+    def enabled(self, group_id: object, defaults: Sequence[int]) -> bool:
+        explicit = self.state(group_id)
+        if explicit is not None:
+            return explicit
+        return str(group_id) in {str(g) for g in defaults}
+
+    def effective(self, defaults: Sequence[int]) -> List[int]:
+        """实际要推送的群：默认列表 + 显式开启的，去掉显式关闭的。"""
+        self._ensure_loaded()
+        out: List[int] = []
+        seen = set()
+
+        def add(value: object) -> None:
+            try:
+                gid = int(value)  # type: ignore[arg-type]
+            except (TypeError, ValueError):
+                return
+            if gid not in seen:
+                seen.add(gid)
+                out.append(gid)
+
+        for group in defaults:
+            add(group)
+        for key in sorted(self._groups):
+            if self._groups[key].get("enabled"):
+                add(key)
+        disabled = {
+            int(key) for key, row in self._groups.items() if row.get("enabled") is False and key.isdigit()
+        }
+        return [group for group in out if group not in disabled]

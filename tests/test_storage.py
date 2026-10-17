@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from nonebot_plugin_stronghold_protocol.storage import BindingStore
+from nonebot_plugin_stronghold_protocol.storage import BindingStore, ReportGroupStore
 
 
 async def test_bind_and_lookup(tmp_path):
@@ -90,3 +90,44 @@ def test_pending_request_expires(tmp_path):
     store.put_pending("10003", "c@qq.com", "b_3", ttl_ms=60_000)
     assert store.peek_pending("10003") is not None
     assert store.peek_pending("10003") is not None  # peek 不消费
+
+
+def test_report_group_overrides_and_persists(tmp_path):
+    store = ReportGroupStore(tmp_path / "report_groups.json")
+    assert store.effective([1, 2]) == [1, 2], "没记录时跟默认列表走"
+    assert store.state(1) is None
+
+    assert store.set_enabled(1, False, by="10001") is True
+    assert store.state(1) is False
+    assert store.enabled(1, [1]) is False
+    assert store.effective([1, 2]) == [2], "显式关闭的要盖掉默认值"
+
+    assert store.set_enabled(3, True, by="10002") is True
+    assert store.enabled(3, []) is True
+    assert store.effective([2]) == [2, 3], "显式开启的追加在后面"
+    assert store.set_enabled(3, True, by="10002") is False, "重复开同一个群 = 没变化"
+
+    again = ReportGroupStore(tmp_path / "report_groups.json")
+    assert again.state(1) is False and again.state(3) is True, "要能跨进程读回来"
+    assert again.effective([1, 2]) == [2, 3]
+
+    doc = json.loads((tmp_path / "report_groups.json").read_text(encoding="utf-8"))
+    assert doc["version"] == 1
+    assert doc["groups"]["1"] == {"enabled": False, "by": "10001", "at": doc["groups"]["1"]["at"]}
+
+
+def test_report_group_survives_a_broken_file(tmp_path):
+    path = tmp_path / "report_groups.json"
+    path.write_text("{ 这不是 json", encoding="utf-8")
+    store = ReportGroupStore(path)
+    assert store.effective([5]) == [5], "坏文件当空表，不影响默认值"
+    store.set_enabled(5, False)
+    assert store.effective([5]) == []
+
+
+def test_report_group_write_failure_keeps_memory_state(tmp_path):
+    blocker = tmp_path / "blocked"
+    blocker.write_text("x", encoding="utf-8")
+    store = ReportGroupStore(blocker / "report_groups.json")  # 父目录是个文件 → 写不进去
+    store.set_enabled(1, True, by="10001")
+    assert store.enabled(1, []) is True, "写盘失败也不能让命令直接炸"

@@ -113,7 +113,7 @@ async def test_broadcast_without_bots(tmp_path, monkeypatch):
     assert await scheduler_mod.broadcast("hi", [1, 2]) == ["没有已连接的机器人，跳过推送"]
 
 
-async def test_start_skips_when_disabled_or_no_groups(tmp_path, monkeypatch):
+async def test_start_only_skips_when_disabled(tmp_path, monkeypatch):
     monkeypatch.setattr(scheduler_mod, "get_bots", lambda: {"1": StubBot()})
 
     service = StubService(tmp_path, stronghold_report_enabled=False, stronghold_report_groups=[1])
@@ -121,10 +121,40 @@ async def test_start_skips_when_disabled_or_no_groups(tmp_path, monkeypatch):
     sched.start()
     assert sched._task is None  # noqa: SLF001 - 断言「没有起后台任务」最直接的方式
 
+    # 没配群也要起循环：管理员可能今天就往群里发「日报 开启」。
     service2 = StubService(tmp_path, stronghold_report_enabled=True, stronghold_report_groups=[])
     sched2 = DailyReportScheduler(service2, service2.config)
     sched2.start()
-    assert sched2._task is None  # noqa: SLF001
+    assert sched2._task is not None  # noqa: SLF001
+    await sched2.stop()
+
+
+async def test_fire_follows_group_toggles_at_runtime(tmp_path, monkeypatch):
+    bot = StubBot()
+    monkeypatch.setattr(scheduler_mod, "get_bots", lambda: {"1": bot})
+    service = StubService(tmp_path, stronghold_report_time="11:00", stronghold_report_groups=[111])
+    sched = DailyReportScheduler(service, service.config)
+
+    await sched.fire()
+    assert [group for group, _ in bot.sent] == [111]
+
+    service.set_report_group(111, False, by="10001")  # 群里「日报 关闭」
+    bot.sent.clear()
+    await sched.fire()
+    assert bot.sent == []
+
+    service.set_report_group(222, True, by="10001")  # 另一个群「日报 开启」
+    await sched.fire()
+    assert [group for group, _ in bot.sent] == [222]
+
+
+async def test_fire_without_groups_skips_the_bridge(tmp_path, monkeypatch):
+    monkeypatch.setattr(scheduler_mod, "get_bots", lambda: {"1": StubBot()})
+    service = StubService(tmp_path, stronghold_report_groups=[])
+    sched = DailyReportScheduler(service, service.config)
+
+    assert await sched.fire() == []
+    assert service.daily_calls == 0, "没人订阅就不该去打服务端接口"
 
 
 async def test_start_and_stop_a_real_task(tmp_path, monkeypatch):

@@ -152,7 +152,8 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 | `stronghold_report_enabled` | 否 | `true` | 开不开定时推送 |
 | `stronghold_report_time` | 否 | `11:00` | 推送时刻 |
 | `stronghold_report_tz` | 否 | `Asia/Shanghai` | 推送时刻和「今日」的日界 |
-| `stronghold_report_groups` | 否 | `[]` | 推到哪些群，如 `["123456789"]`；留空就只响应手动 `日报` |
+| `stronghold_report_groups` | 否 | `[]` | **默认**推送群，如 `["123456789"]`；群里的 `日报 开启` / `日报 关闭` 会覆盖它 |
+| `stronghold_admins` | 否 | `[]` | 插件管理员（能开关群推送），如 `["10001"]`；NoneBot 的 `SUPERUSERS` 天然也是管理员 |
 | `stronghold_report_max_titles` | 否 | `5` | 每个称号最多列几个人，`0` 是全列 |
 | `stronghold_reply_image` | 否 | `true` | 命令回复与日报推送出图（需要 htmlrender；失败自动回退文本） |
 | `stronghold_menu_server_name` | 否 | `卫戍协议：盟约` | 菜单标题和页脚显示的名字 |
@@ -163,7 +164,7 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 几点说明：
 
 - **`stronghold_use_env_proxy` 默认是关的**。游戏服一般在本机或内网，机器所在环境里的 `HTTP_PROXY` 会把请求劫走（我这边就踩过，直接回 502）。真要经代理再打开，顺手配 `NO_PROXY`。
-- **日报群号**填数字数组，`stronghold_report_groups=["123456","234567"]`；时区同时也是「今日」的日界，和游戏服的 `TZ` 保持一致最省心。
+- **日报订阅**：`stronghold_report_groups` 只是默认值；把机器人拉进群后，管理员在群里发 `日报 开启` 就订阅、发 `日报 关闭` 就退订（记录在 `stronghold_data_dir` 的 `report_groups.json`，重启不丢）。时区同时也是「今日」的日界，和游戏服的 `TZ` 保持一致最省心。
 - **账号绑定**需要服务端开了账号系统（`/meta` 里带 `bind.email` 能力），没开的话 `绑定` 会直接告诉你；绑定关系只存在机器人这边，服务端只负责证明邮箱是你的。
 - **菜单**那几条只有在装了 picmenu-next 时才有意义，浅色变体是 `PMN_STRONGHOLD_LIGHT=true`。
 
@@ -183,6 +184,7 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 | `验证 <验证码>` | 完成绑定（别名 `绑定验证`） |
 | `解绑` / `我的账号` | 解除绑定 / 看看自己绑的是哪个账号 |
 | `日报 [日期]` | 今天或者指定日期（`2026-10-15`、`10-15`、`昨天`）的日报 |
+| `日报 开启` / `日报 关闭` | **管理员**在群里开/关本群的定时推送（默认值见 `stronghold_report_groups`） |
 
 ### 回复长什么样
 

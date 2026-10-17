@@ -78,15 +78,17 @@ class DailyReportScheduler:
         if not self.config.stronghold_report_enabled:
             logger.info("[stronghold] 日报定时推送已关闭（stronghold_report_enabled=false）")
             return
-        if not self.config.stronghold_report_groups:
-            from .runtime import command_prefix
-
-            logger.info(
-                f"[stronghold] 未配置 stronghold_report_groups，日报只响应 {command_prefix()}日报 手动查询"
-            )
-            return
         if self._task and not self._task.done():
             return
+        from .runtime import command_prefix
+
+        groups = self.service.report_groups()
+        if groups:
+            logger.info(f"[stronghold] 日报推送目的地：{groups}")
+        else:
+            logger.info(
+                f"[stronghold] 还没有订阅日报的群：管理员在群里发 {command_prefix()}日报 开启 即可"
+            )
         self._stopped = False
         self._task = asyncio.create_task(self._loop(), name="stronghold-daily-report")
 
@@ -121,6 +123,11 @@ class DailyReportScheduler:
     async def fire(self) -> List[str]:
         """取一次日报并推送；返回每个目标的结果描述（日志/测试用）。"""
         results: List[str] = []
+        # 群列表现算：管理员随时可以在群里开/关，不用重启。
+        groups = self.service.report_groups()
+        if not groups:
+            logger.info("[stronghold] 没有订阅日报的群，跳过本次推送")
+            return results
         try:
             report = await self.service.daily()
         except BridgeError as e:
@@ -132,7 +139,7 @@ class DailyReportScheduler:
             "daily",
             daily_view(report, max_titles=self.config.stronghold_report_max_titles, tz=self.service.tz),
         )
-        for line in await broadcast(text, self.config.stronghold_report_groups, image=image):
+        for line in await broadcast(text, groups, image=image):
             results.append(line)
             logger.info(f"[stronghold] 日报推送：{line}")
         return results

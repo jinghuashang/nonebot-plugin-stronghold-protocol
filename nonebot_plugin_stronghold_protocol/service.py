@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta, tzinfo
-from typing import Optional
+from pathlib import Path
+from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 from .bridge import BridgeClient, BridgeError
 from .config import Config
 from .models import BindChallenge, BindResult, DailyReport, PlayerProfile, ServerStatus
-from .storage import Binding, BindingStore, default_data_dir
+from .storage import Binding, BindingStore, ReportGroupStore, default_data_dir
 
 
 def resolve_tz(name: str) -> tzinfo:
@@ -23,7 +24,8 @@ def resolve_tz(name: str) -> tzinfo:
 class StrongholdService:
     """一进程一个实例，由插件启动时创建。"""
 
-    def __init__(self, config: Config, store: Optional[BindingStore] = None):
+    def __init__(self, config: Config, store: Optional[BindingStore] = None,
+                 report_store: Optional[ReportGroupStore] = None):
         self.config = config
         self.client = BridgeClient(
             base_url=config.stronghold_api_base,
@@ -33,7 +35,13 @@ class StrongholdService:
             verify_tls=config.stronghold_verify_tls,
             use_env_proxy=config.stronghold_use_env_proxy,
         )
-        self.store = store or BindingStore(default_data_dir(config.stronghold_data_dir) / "bindings.json")
+        data_dir = default_data_dir(config.stronghold_data_dir)
+        self.store = store or BindingStore(data_dir / "bindings.json")
+        # 订阅表跟绑定表放同一个目录：测试传自定义绑定表时，订阅表也自动跟着走。
+        base_dir = getattr(self.store, "path", None)
+        self.report_store = report_store or ReportGroupStore(
+            (Path(base_dir).parent if base_dir else data_dir) / "report_groups.json"
+        )
         self.tz = resolve_tz(config.stronghold_report_tz)
 
     # ---- 在线 ------------------------------------------------------------------------------------
@@ -57,6 +65,19 @@ class StrongholdService:
 
     async def daily(self, day: Optional[date] = None) -> DailyReport:
         return await self.client.daily(day)
+
+    # ---- 群日报订阅（「日报 开启 / 日报 关闭」）--------------------------------------------------
+
+    def report_groups(self) -> List[int]:
+        """这次实际要推送的群：配置默认值 + 群里显式开启的 − 显式关闭的。"""
+        return self.report_store.effective(self.config.stronghold_report_groups)
+
+    def report_group_enabled(self, group_id: object) -> bool:
+        return self.report_store.enabled(group_id, self.config.stronghold_report_groups)
+
+    def set_report_group(self, group_id: object, enabled: bool, by: object = "") -> bool:
+        """记下某个群的开关；返回「和之前相比是否变了」。"""
+        return self.report_store.set_enabled(group_id, enabled, by)
 
     def report_date(self, day: Optional[date] = None) -> date:
         """服务端「今天」的本地日期（日报的日界 = 配置时区的当日）。"""

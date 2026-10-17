@@ -39,3 +39,24 @@ def get_service() -> StrongholdService:
     if _service is None:  # 插件导入顺序错了才会走到；正常由 __init__ 先设置
         raise RuntimeError("StrongholdService 尚未初始化")
     return _service
+
+
+def is_admin(user_id: object) -> bool:
+    """管理员判定：NoneBot 的 ``SUPERUSERS`` ∪ 插件的 ``stronghold_admins``。"""
+    uid = str(user_id or "").strip()
+    if not uid:
+        return False
+    allowed = set()
+    try:
+        from nonebot import get_driver
+
+        for item in get_driver().config.superusers or ():
+            allowed.add(str(item))
+    except Exception:  # noqa: BLE001 - 没初始化就不认 SUPERUSERS
+        pass
+    try:
+        for item in get_service().config.stronghold_admins or ():
+            allowed.add(str(item))
+    except Exception:  # noqa: BLE001 - 配置缺失就只认 SUPERUSERS
+        pass
+    return uid in allowed

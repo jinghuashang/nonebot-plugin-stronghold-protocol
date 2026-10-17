@@ -48,10 +48,12 @@ class Config(BaseModel):
     stronghold_report_tz: str = "Asia/Shanghai"
     #: 命令回复与日报推送出图（需要 nonebot-plugin-htmlrender；渲染失败会自动回退文本）。
     stronghold_reply_image: bool = True
-    #: 推送目标群号列表；空列表 = 只提供 /日报 手动查询，不自动推送。
+    #: 默认推送群号列表（种子）：群里的「日报 开启 / 日报 关闭」会覆盖这里，见 docs。
     stronghold_report_groups: List[int] = Field(default_factory=list)
     #: 日报里每个称号最多列几人，0 = 全部。
     stronghold_report_max_titles: int = 5
+    #: 插件自己的管理员（能开关群日报推送）。NoneBot 的 SUPERUSERS 天然也是管理员。
+    stronghold_admins: List[int] = Field(default_factory=list)
 
     # ---- 图片菜单（可选：装了 nonebot-plugin-picmenu-next 才生效）-------------------------------
     #: 菜单里显示的服务器名（首页标题、页脚）。

@@ -15,7 +15,7 @@ from nonebot.params import CommandArg
 from . import cards
 from .bridge import BridgeError
 from .render import describe_error, fmt_time, render_daily, render_matches, render_online, render_profile
-from .runtime import command_prefix, get_service
+from .runtime import command_prefix, get_service, is_admin
 
 #: 指令前缀：跟着部署的 COMMAND_START 走（很多部署里是空串，用户直接敲「在线」）。
 P = command_prefix()
@@ -244,6 +244,49 @@ async def handle_me(event: Event) -> None:
 
 # ---- 日报 ---------------------------------------------------------------------------------------
 
+#: 「日报 开启 / 日报 关闭」：群里就能配，只有管理员能改。
+REPORT_ON = {"开启", "打开", "开"}
+REPORT_OFF = {"关闭", "关"}
+
+
+async def _toggle_report(matcher, event: Event, enable: bool) -> None:
+    """开关本群的日报定时推送（管理员）。"""
+    group_id = getattr(event, "group_id", None)
+    if group_id is None:
+        await _send_note(
+            matcher, event,
+            f"日报开关只在群里生效：到群里发「{P}日报 {'开启' if enable else '关闭'}」即可。",
+            title="日报设置", icon="🏰",
+        )
+        return
+    if not is_admin(event.get_user_id()):
+        await _send_note(
+            matcher, event,
+            "只有管理员能开关日报推送。\n"
+            "管理员 = 机器人的 SUPERUSERS 或插件配置 stronghold_admins。",
+            title="没有权限", tone="error", icon="⚠️",
+        )
+        return
+    service = get_service()
+    changed = service.set_report_group(group_id, enable, by=event.get_user_id())
+    if service.report_group_enabled(group_id):
+        if changed:
+            text = (
+                f"本群日报推送已开启：每天 {service.config.stronghold_report_time}"
+                f"（{service.config.stronghold_report_tz}）推送当日日报。\n"
+                f"随时手动查看：{P}日报"
+            )
+        else:
+            text = f"本群日报推送本来就是开启的。\n手动查看：{P}日报"
+        await _send_note(matcher, event, text, title="日报设置", tone="ok", icon="🔔")
+        return
+    if changed:
+        text = f"本群日报推送已关闭。\n手动查看不受影响：{P}日报"
+    else:
+        text = f"本群日报推送本来就是关闭的。\n手动查看：{P}日报"
+    await _send_note(matcher, event, text, title="日报设置", icon="🔕")
+
+
 daily_cmd = on_command("日报", aliases={"今日日报", "daily"}, priority=5, block=True)
 
 
@@ -251,6 +294,12 @@ daily_cmd = on_command("日报", aliases={"今日日报", "daily"}, priority=5, 
 async def handle_daily(event: Event, arg: Message = CommandArg()) -> None:
     service = get_service()
     text = arg.extract_plain_text().strip()
+    if text in REPORT_ON:
+        await _toggle_report(daily_cmd, event, True)
+        return
+    if text in REPORT_OFF:
+        await _toggle_report(daily_cmd, event, False)
+        return
     today = service.report_date()
     day = service.parse_date(text, today)
     if text and day is None:

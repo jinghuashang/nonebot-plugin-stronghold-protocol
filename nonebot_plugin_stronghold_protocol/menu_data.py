@@ -105,11 +105,15 @@ MENU_DATA: List[Dict[str, Any]] = [
     {
         "func": "日报定时推送",
         "trigger_method": "自动：每天 `stronghold_report_time`（默认 11:00）",
-        "trigger_condition": "配置了 `stronghold_report_groups`",
+        "trigger_condition": (
+            f"管理员在群里发 `{_P}日报 开启`；`stronghold_report_groups` 是默认订阅名单"
+        ),
         "brief_des": "每天 11 点把日报发到群里",
         "detail_des": (
-            "时区由 `stronghold_report_tz` 决定（默认 Asia/Shanghai），日界也用这个时区。"
-            "关掉推送把 `stronghold_report_enabled` 设为 false 即可（`/日报` 手动查询不受影响）。"
+            "时区由 `stronghold_report_tz` 决定（默认 Asia/Shanghai），日界也用这个时区。\n\n"
+            f"管理员在群里发 `{_P}日报 开启` / `{_P}日报 关闭` 即可订阅/退订本群"
+            "（管理员 = `SUPERUSERS` 或 `stronghold_admins`），改动立即生效、重启不丢。\n\n"
+            "彻底关掉定时推送把 `stronghold_report_enabled` 设为 false（手动查询不受影响）。"
         ),
     },
 ]
