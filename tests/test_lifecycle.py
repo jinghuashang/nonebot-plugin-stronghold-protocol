@@ -49,5 +49,5 @@ async def test_startup_and_shutdown_hooks_drive_the_scheduler():
 def test_report_time_default_matches_the_requirement():
     plugin = _plugin()
     config = plugin.module._scheduler.config  # noqa: SLF001
-    assert config.stronghold_report_time == "11:00", "日报默认 11:00"
+    assert config.stronghold_report_time == "23:00", "日报默认 23:00"
     assert config.stronghold_report_tz == "Asia/Shanghai"

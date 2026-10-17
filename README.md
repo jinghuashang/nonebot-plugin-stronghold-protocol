@@ -30,7 +30,7 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 
 ## 📖 介绍
 
-给《[卫戍协议：盟约](https://github.com/sganggs/Stronghold-Protocol)》开服的服主用的：群里发个 `在线` 看谁在线、发 `对局` 看谁在打、发 `战绩` 看自己打得怎么样，绑上游戏账号之后还能每天中午自动贴一份日报。
+给《[卫戍协议：盟约](https://github.com/sganggs/Stronghold-Protocol)》开服的服主用的：群里发个 `在线` 看谁在线、发 `对局` 看谁在打、发 `战绩` 看自己打得怎么样，绑上游戏账号之后还能每天晚上 23 点自动贴一份日报。
 
 插件只是个客户端，不碰游戏进程，数据全靠服务端开的一小份只读接口（契约在 [docs/BRIDGE-API.md](./docs/BRIDGE-API.md)，含服务端要改哪几处）。上游现在只有 `/healthz` 和静态文件，所以得先按那份文档把接口接上，没接的时候命令会直接告诉你「这台卫戍服还没实现该接入能力」。
 
@@ -150,11 +150,11 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 | `stronghold_bind_ttl_min` | 否 | `10` | 发码后等回码的有效期（分钟） |
 | `stronghold_data_dir` | 否 | `""` | 绑定表放哪，默认 `<cwd>/data/nonebot_plugin_stronghold_protocol` |
 | `stronghold_report_enabled` | 否 | `true` | 开不开定时推送 |
-| `stronghold_report_time` | 否 | `11:00` | 推送时刻 |
+| `stronghold_report_time` | 否 | `23:00` | 推送时刻（24 小时制） |
 | `stronghold_report_tz` | 否 | `Asia/Shanghai` | 推送时刻和「今日」的日界 |
 | `stronghold_report_groups` | 否 | `[]` | **默认**推送群，如 `["123456789"]`；群里的 `日报 开启` / `日报 关闭` 会覆盖它 |
 | `stronghold_admins` | 否 | `[]` | 插件管理员（能开关群推送），如 `["10001"]`；NoneBot 的 `SUPERUSERS` 天然也是管理员 |
-| `stronghold_report_max_titles` | 否 | `5` | 每个称号最多列几个人，`0` 是全列 |
+| `stronghold_report_max_titles` | 否 | `1` | 每个称号列前几人（默认只列第一），`0` 是全列 |
 | `stronghold_reply_image` | 否 | `true` | 命令回复与日报推送出图（需要 htmlrender；失败自动回退文本） |
 | `stronghold_menu_server_name` | 否 | `卫戍协议：盟约` | 菜单标题和页脚显示的名字 |
 | `stronghold_menu_live` | 否 | `true` | 菜单里显不显示实时状态（关掉就完全不请求游戏服） |

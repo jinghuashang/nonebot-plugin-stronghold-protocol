@@ -16,7 +16,7 @@ from .config import Config
 from .render import describe_error, render_daily
 from .service import StrongholdService
 
-DEFAULT_REPORT_TIME = (11, 0)
+DEFAULT_REPORT_TIME = (23, 0)
 
 
 def parse_hhmm(text: str) -> Optional[tuple]:

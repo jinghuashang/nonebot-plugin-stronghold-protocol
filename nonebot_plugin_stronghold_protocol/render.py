@@ -258,7 +258,7 @@ def render_profile(profile: PlayerProfile, limit: int = 5, tz: Optional[tzinfo] 
 # ---- 日报 ---------------------------------------------------------------------------------------
 
 
-def _board_lines(board: Optional[TitleBoard], max_holders: int = 5, title_id: str = "") -> List[str]:
+def _board_lines(board: Optional[TitleBoard], max_holders: int = 1, title_id: str = "") -> List[str]:
     """一个称号榜的正文行（含「今日无人获得」）。服务端没给 name/note 时用内置常量兜底。"""
     key = title_id or (board.id if board else "")
     name = (board.display_name if board else "") or TITLE_NAMES.get(key, "未知称号")
@@ -281,13 +281,14 @@ def _board_lines(board: Optional[TitleBoard], max_holders: int = 5, title_id: st
                 piece += f"（最远 {h.best_rounds} 回合）"
         parts.append(piece)
     lines = [head, "　" + " · ".join(parts)]
-    if len(holders) > len(shown):
+    # 只列第一时不再报「还有 N 人」，一行就干净了
+    if max_holders != 1 and len(holders) > len(shown):
         lines.append(f"　…… 还有 {len(holders) - len(shown)} 人")
     return lines
 
 
 def render_daily(
-    report: DailyReport, *, max_titles: int = 5, tz: Optional[tzinfo] = None, title: str = "卫戍协议日报"
+    report: DailyReport, *, max_titles: int = 1, tz: Optional[tzinfo] = None, title: str = "卫戍协议日报"
 ) -> str:
     """``/日报`` 与定时推送共用的正文。"""
     date_text = report.date or fmt_time(report.server_now, tz, "%Y-%m-%d")

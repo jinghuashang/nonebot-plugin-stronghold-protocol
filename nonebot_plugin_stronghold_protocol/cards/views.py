@@ -242,11 +242,12 @@ def _board_block(title_id: str, board: Optional[TitleBoard], max_holders: int) -
         "note": note,
         "accent": accent,
         "texts": texts,
-        "more": max(0, len(holders) - len(shown)),
+        # 只列第一时不再报「还有 N 人」
+        "more": 0 if max_holders == 1 else max(0, len(holders) - len(shown)),
     }
 
 
-def daily_view(report: DailyReport, max_titles: int = 5, tz: Optional[tzinfo] = None) -> Dict[str, Any]:
+def daily_view(report: DailyReport, max_titles: int = 1, tz: Optional[tzinfo] = None) -> Dict[str, Any]:
     s = report.summary
     matches = s.matches or s.finished
     rate = s.win_rate if s.win_rate > 0 else (s.victories / matches if matches else 0.0)
@@ -293,7 +294,10 @@ def daily_view(report: DailyReport, max_titles: int = 5, tz: Optional[tzinfo] = 
             "title": "统计口径",
             "lines": [
                 "五个称号 + 今日胜率 + 今日消耗资金。",
-                "训练局不计入胜率；" + (f"每个称号最多列 {max_titles} 人。" if max_titles > 0 else "称号全部列出。"),
+                "训练局不计入胜率；" + (
+                    "每个称号只列第一人。" if max_titles == 1
+                    else (f"每个称号最多列 {max_titles} 人。" if max_titles > 0 else "称号全部列出。")
+                ),
             ],
         },
         "date": date_text,

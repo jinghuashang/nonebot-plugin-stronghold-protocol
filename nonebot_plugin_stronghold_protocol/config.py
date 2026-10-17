@@ -43,15 +43,15 @@ class Config(BaseModel):
     #: 是否开启每日定时推送。
     stronghold_report_enabled: bool = True
     #: 推送时刻，24 小时制 HH:MM（按 stronghold_report_tz）。
-    stronghold_report_time: str = "11:00"
+    stronghold_report_time: str = "23:00"
     #: 日报时区：既是推送时刻的时区，也是「今日」的日界。
     stronghold_report_tz: str = "Asia/Shanghai"
     #: 命令回复与日报推送出图（需要 nonebot-plugin-htmlrender；渲染失败会自动回退文本）。
     stronghold_reply_image: bool = True
     #: 默认推送群号列表（种子）：群里的「日报 开启 / 日报 关闭」会覆盖这里，见 docs。
     stronghold_report_groups: List[int] = Field(default_factory=list)
-    #: 日报里每个称号最多列几人，0 = 全部。
-    stronghold_report_max_titles: int = 5
+    #: 日报里每个称号只列前几人（默认只列第一），0 = 全部。
+    stronghold_report_max_titles: int = 1
     #: 插件自己的管理员（能开关群日报推送）。NoneBot 的 SUPERUSERS 天然也是管理员。
     stronghold_admins: List[int] = Field(default_factory=list)
 

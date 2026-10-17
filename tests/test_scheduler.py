@@ -70,11 +70,11 @@ def test_next_fire_at_is_strictly_future(tmp_path):
     assert sched.next_fire_at(midnight) == datetime(2026, 10, 15, 11, 0, tzinfo=TZ)
 
 
-def test_invalid_time_falls_back_to_11(tmp_path):
+def test_invalid_time_falls_back_to_23(tmp_path):
     service = StubService(tmp_path, stronghold_report_time="晚上十一点")
     sched = DailyReportScheduler(service, service.config)
-    assert sched.time_of_day == (11, 0)
-    assert sched.time_of_day == (11, 0)  # 只警告一次，行为稳定
+    assert sched.time_of_day == (23, 0)
+    assert sched.time_of_day == (23, 0)  # 只警告一次，行为稳定
 
 
 async def test_fire_renders_and_sends(tmp_path, monkeypatch):

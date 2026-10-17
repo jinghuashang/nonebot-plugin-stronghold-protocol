@@ -1,7 +1,7 @@
 """卫戍协议：盟约 · QQ 机器人插件。
 
 对接任意一台实现了 **Stronghold Bot Bridge** 契约（``docs/BRIDGE-API.md``）的卫戍协议服务端，
-提供在线玩家、在线对局、战绩查询、账号绑定与每日 11 点日报。
+提供在线玩家、在线对局、战绩查询、账号绑定与每日 23 点日报。
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ USAGE = f"""\
 {P}我的账号        查看当前绑定
 {P}日报 [日期]     今日（或指定日期）日报
 
-日报每天 11:00 自动推送到配置的群（stronghold_report_groups）。
+日报每天 23:00 自动推送到配置的群（stronghold_report_groups）。
 """
 
 __plugin_meta__ = PluginMetadata(
