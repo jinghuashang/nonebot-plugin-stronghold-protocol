@@ -1,5 +1,7 @@
 /* 命令回复卡片：与图片菜单同一套设计语言（Stronghold-Protocol 本体 public/css/theme.css 的令牌）
-   宽度 750，高度自适应（Playwright full_page 截图）。CSS 由 render.py 内联进 HTML。 */
+   宽度 750，高度自适应。CSS 由 render.py 内联进 HTML。
+
+   排版原则：宁可高一点，不要挤。行距、内边距、组间距都按"能喘气"来给。 */
 
 :root {
   color-scheme: dark;
@@ -44,23 +46,23 @@ body {
   color: var(--text-md);
   font-family: var(--cjk);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 
 .wrap {
   width: 750px;
-  padding: 14px;
+  padding: 16px;
 }
 
 /* 卡片：括号角框（与游戏 .brackets 同一手法） */
 .card {
   position: relative;
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(78, 216, 175, 0.05) 0%, transparent 60%),
+    radial-gradient(120% 90% at 50% 0%, rgba(78, 216, 175, 0.045) 0%, transparent 60%),
     linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
   border: 1px solid var(--line);
-  padding: 16px 18px 14px;
+  padding: 22px 24px 16px;
 }
 
 .card::after {
@@ -80,15 +82,15 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 10px;
+  gap: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--line);
 }
 
 .head h1 {
   margin: 0;
   color: var(--text-hi);
-  font-size: 22px;
+  font-size: 23px;
   letter-spacing: 0.03em;
 }
 
@@ -96,9 +98,9 @@ body {
   content: '';
   display: inline-block;
   width: 4px;
-  height: 0.86em;
-  margin-right: 8px;
-  vertical-align: -6%;
+  height: 0.84em;
+  margin-right: 10px;
+  vertical-align: -5%;
   background: var(--mint-500);
 }
 
@@ -106,14 +108,15 @@ body {
   color: var(--mint-700);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
 .sub {
-  margin-top: 4px;
+  margin-top: 5px;
   color: var(--text-lo);
-  font-size: 12px;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
 }
 
 .sub b {
@@ -126,15 +129,15 @@ body {
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .chip {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  padding: 5px 11px;
+  gap: 7px;
+  padding: 6px 13px;
   border: 1px solid var(--line-2);
   background: var(--bg-2);
 }
@@ -142,9 +145,9 @@ body {
 .chip i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 10.5px;
   letter-spacing: 0.14em;
-  color: var(--text-dim);
+  color: var(--text-lo);
 }
 
 .chip b {
@@ -158,17 +161,17 @@ body {
   color: var(--gold);
 }
 
-/* ---- 名册（/在线）：按状态分组 ------------------------------------------------------------- */
+/* ---- 名册（/在线）：按状态分组，单列，行间留白 --------------------------------------------- */
 
 .group {
-  margin-top: 12px;
+  margin-top: 18px;
 }
 
 .group-head {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 5px;
+  gap: 9px;
+  padding-bottom: 7px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -184,12 +187,12 @@ body {
   color: var(--text-hi);
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .group-head .count {
   margin-left: auto;
-  padding: 0 7px;
+  padding: 0 8px;
   border: 1px solid var(--line-2);
   background: var(--bg-3);
   color: var(--text-lo);
@@ -214,51 +217,95 @@ body {
 }
 
 .group--idle {
-  --gc: var(--line-3);
+  --gc: var(--line-3, #58675f);
 }
 
 .roster {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px 14px;
-  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+}
+
+.roster .row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 7px 2px;
+  border-bottom: 1px solid rgba(47, 58, 53, 0.55);
+}
+
+.roster .row:last-child {
+  border-bottom: none;
 }
 
 .roster .who {
   display: flex;
   align-items: baseline;
-  gap: 7px;
-  font-size: 13.5px;
-  color: var(--text-md);
+  gap: 8px;
+  min-width: 0;
 }
 
 .roster .who b {
   color: var(--text-hi);
+  font-size: 14.5px;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.roster .who .meta {
-  margin-left: auto;
-  color: var(--text-dim);
+.roster .meta {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  color: var(--text-lo);
+  font-size: 12px;
+}
+
+.roster .meta .room {
   font-family: var(--font-mono);
-  font-size: 10.5px;
   letter-spacing: 0.06em;
+}
+
+.roster .meta .diff {
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+.roster .meta .since {
+  min-width: 62px;
+  text-align: right;
+  color: var(--text-dim);
+  font-family: var(--font-num);
+}
+
+/* 状态小标签 */
+.tag {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--mint-800);
+  background: var(--mint-a10);
+  color: var(--mint-400);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
 }
 
 /* ---- 战况（/对局）：每房一块 + 回合进度条 --------------------------------------------------- */
 
 .match {
-  margin-top: 12px;
+  margin-top: 14px;
   border: 1px solid var(--line);
   border-left: 2px solid var(--mint-500);
   background: var(--bg-2);
-  padding: 10px 13px;
+  padding: 13px 15px;
 }
 
 .match-head {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
 }
 
 .match-head .room {
@@ -266,7 +313,7 @@ body {
   font-family: var(--font-mono);
   font-size: 17px;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .match-head .meta {
@@ -277,14 +324,14 @@ body {
 .match-head .time {
   margin-left: auto;
   color: var(--text-dim);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-family: var(--font-num);
+  font-size: 11px;
 }
 
 .bar {
   position: relative;
-  height: 6px;
-  margin: 9px 0 4px;
+  height: 7px;
+  margin: 11px 0 5px;
   background: var(--bg-3);
   border: 1px solid var(--line);
   overflow: hidden;
@@ -303,21 +350,21 @@ body {
   color: var(--text-dim);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .match .squad {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 11px;
 }
 
 .match .squad .who {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  padding: 3px 9px;
+  gap: 7px;
+  padding: 4px 11px;
   border: 1px solid var(--line-2);
   background: var(--bg-1);
   font-size: 12.5px;
@@ -331,6 +378,7 @@ body {
 .match .squad .who .lp {
   color: var(--mint-400);
   font-family: var(--font-num);
+  font-size: 11.5px;
 }
 
 .match .squad .who.dead {
@@ -352,14 +400,14 @@ body {
 .panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .panel {
   border: 1px solid var(--line);
   background: var(--bg-2);
-  padding: 10px 13px;
+  padding: 12px 15px;
 }
 
 .panel .panel-title {
@@ -373,14 +421,14 @@ body {
 .panel .big {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  margin-top: 2px;
+  gap: 7px;
+  margin-top: 4px;
 }
 
 .panel .big b {
   color: var(--text-hi);
   font-family: var(--font-num);
-  font-size: 30px;
+  font-size: 32px;
   line-height: 1.15;
 }
 
@@ -393,15 +441,15 @@ body {
   margin-left: auto;
   color: var(--mint-400);
   font-family: var(--font-num);
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
 }
 
 .panel .kv {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
-  margin-top: 5px;
+  gap: 10px;
+  margin-top: 7px;
   color: var(--text-md);
   font-size: 12.5px;
 }
@@ -411,7 +459,7 @@ body {
   color: var(--text-dim);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
 }
 
 .panel .kv b {
@@ -426,12 +474,12 @@ body {
 .medals {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .medals span {
-  padding: 2px 9px;
+  padding: 3px 10px;
   border: 1px solid var(--mint-800);
   background: var(--mint-a10);
   color: var(--mint-400);
@@ -440,14 +488,14 @@ body {
 
 table.grid {
   width: 100%;
-  margin-top: 12px;
+  margin-top: 16px;
   border-collapse: collapse;
   background: var(--bg-1);
   border: 1px solid var(--line);
 }
 
 table.grid th {
-  padding: 6px 9px;
+  padding: 8px 11px;
   background: var(--bg-3);
   border-bottom: 1px solid var(--line-2);
   color: var(--text-lo);
@@ -460,11 +508,11 @@ table.grid th {
 }
 
 table.grid td {
-  padding: 5px 9px;
+  padding: 8px 11px;
   border-bottom: 1px solid var(--line);
   font-size: 12.5px;
   color: var(--text-md);
-  vertical-align: top;
+  vertical-align: baseline;
 }
 
 table.grid tr:last-child td {
@@ -473,8 +521,8 @@ table.grid tr:last-child td {
 
 table.grid td.dim {
   color: var(--text-dim);
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-num);
+  font-size: 11.5px;
 }
 
 table.grid .win {
@@ -492,13 +540,14 @@ table.grid .lose {
 .poster-date {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 .poster-date b {
   color: var(--text-hi);
   font-family: var(--font-num);
-  font-size: 34px;
+  font-size: 36px;
   letter-spacing: 0.02em;
 }
 
@@ -506,37 +555,37 @@ table.grid .lose {
   color: var(--mint-700);
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
 }
 
 .kpis {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .kpi {
   flex: 1 1 0;
-  min-width: 118px;
+  min-width: 120px;
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
-  padding: 8px 11px;
+  padding: 10px 13px;
 }
 
 .kpi i {
   display: block;
   font-style: normal;
-  color: var(--text-dim);
+  color: var(--text-lo);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 10.5px;
   letter-spacing: 0.16em;
 }
 
 .kpi b {
   color: var(--mint-400);
   font-family: var(--font-num);
-  font-size: 22px;
+  font-size: 23px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -545,14 +594,14 @@ table.grid .lose {
 }
 
 .kpi span {
-  margin-left: 3px;
+  margin-left: 4px;
   color: var(--text-lo);
   font-size: 11px;
 }
 
 .board {
-  margin-top: 9px;
-  padding: 8px 12px;
+  margin-top: 10px;
+  padding: 10px 14px;
   border: 1px solid var(--line);
   border-left: 2px solid var(--acc, var(--mint-500));
   background: var(--bg-2);
@@ -561,14 +610,14 @@ table.grid .lose {
 .board-head {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
 }
 
 .board-name {
   color: var(--acc, var(--mint-500));
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .board-note {
@@ -577,10 +626,11 @@ table.grid .lose {
 }
 
 .board-body {
-  margin-top: 2px;
+  margin-top: 3px;
   color: var(--text-md);
   font-size: 13px;
   font-family: var(--font-num);
+  line-height: 1.6;
 }
 
 .acc-gold {
@@ -606,11 +656,11 @@ table.grid .lose {
 /* ---- 通用提示（绑定 / 报错 / 用法）---------------------------------------------------------- */
 
 .note {
-  margin-top: 12px;
+  margin-top: 14px;
   border: 1px solid var(--line);
   border-left: 2px solid var(--mint-500);
   background: var(--bg-2);
-  padding: 10px 13px;
+  padding: 15px 17px;
 }
 
 .note--ok {
@@ -622,18 +672,19 @@ table.grid .lose {
 }
 
 .note .icon {
-  margin-right: 6px;
+  margin-right: 8px;
 }
 
 .note p {
   margin: 0;
   color: var(--text-md);
-  font-size: 14px;
+  font-size: 14.5px;
+  line-height: 1.75;
   word-break: break-word;
 }
 
 .note p + p {
-  margin-top: 5px;
+  margin-top: 7px;
 }
 
 .note p b {
@@ -641,7 +692,28 @@ table.grid .lose {
 }
 
 .more {
-  margin-top: 8px;
+  margin-top: 10px;
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: 11.5px;
+}
+
+/* 页脚：和头部那行"服版本号"同款的浅灰、正常大小写（不要全大写、不要亮白） */
+.foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--text-lo);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+}
+
+.foot span {
+  color: var(--text-lo);
+}
+
+.foot span:last-child {
+  color: var(--text-dim);
 }

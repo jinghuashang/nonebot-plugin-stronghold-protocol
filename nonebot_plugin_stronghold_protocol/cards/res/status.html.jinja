@@ -22,13 +22,16 @@
   </div>
   <div class="roster">
     {% for r in g.rows -%}
-    <div class="who">
-      <b>{{ r.name }}</b>
-      {%- if r.is_host %} <span class="tag">房主</span>{% endif %}
-      <span class="meta">
-        {%- if r.room %}同盟 {{ r.room }}{% if r.difficulty %} · {{ r.difficulty }}{% endif %} · {% endif -%}
-        {{ r.since }} 起
-      </span>
+    <div class="row">
+      <div class="who">
+        <b>{{ r.name }}</b>
+        {%- if r.is_host %}<span class="tag">房主</span>{% endif %}
+      </div>
+      <div class="meta">
+        {%- if r.room %}<span class="room">同盟 {{ r.room }}</span>{%- endif -%}
+        {%- if r.difficulty %}<span class="diff">{{ r.difficulty }}</span>{%- endif -%}
+        <span class="since">{{ r.since }} 起</span>
+      </div>
     </div>
     {% endfor -%}
   </div>
