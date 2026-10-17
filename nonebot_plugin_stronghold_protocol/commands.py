@@ -241,6 +241,51 @@ async def handle_me(event: Event) -> None:
     await _send_note(me_cmd, event, "\n".join(lines), title="我的账号")
 
 
+# ---- 自定义战报（近 N 天）---------------------------------------------------------------------
+
+custom_report_cmd = on_command("战报", aliases={"自定义战报"}, priority=5, block=True)
+
+
+def _parse_days(text: str) -> Optional[int]:
+    """``"3"`` → 3；非数字或超出 1–90 返回 None。"""
+    raw = (text or "").strip()
+    if not raw:
+        return None
+    try:
+        days = int(raw)
+    except ValueError:
+        return None
+    return days if 1 <= days <= 90 else None
+
+
+@custom_report_cmd.handle()
+async def handle_custom_report(event: Event, arg: Message = CommandArg()) -> None:
+    service = get_service()
+    days = _parse_days(arg.extract_plain_text())
+    if days is None:
+        await _send_note(
+            custom_report_cmd, event,
+            f"用法：{P}战报 <天数>（1–90），例如 {P}战报 3 看最近 3 天。",
+            title="自定义战报",
+        )
+        return
+    try:
+        report = await service.period_daily(days)
+    except BridgeError as e:
+        await _send_error(custom_report_cmd, describe_error(e))
+        return
+    title = "今日战报" if days == 1 else f"近 {days} 天战报"
+    hero_cap = "今日对局" if days == 1 else f"{days} 天对局"
+    span = "今日" if days == 1 else f"近 {days} 天"
+    max_titles = service.config.stronghold_report_max_titles
+    await _send(
+        custom_report_cmd, event, "daily",
+        cards.views.daily_view(report, max_titles=max_titles, tz=service.tz,
+                               title=title, hero_cap=hero_cap, span=span),
+        render_daily(report, max_titles=max_titles, tz=service.tz, title=title),
+    )
+
+
 # ---- 日报 ---------------------------------------------------------------------------------------
 
 #: 「日报 开启 / 日报 关闭」：群里就能配，只有管理员能改。

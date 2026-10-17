@@ -103,6 +103,16 @@ MENU_DATA: List[Dict[str, Any]] = [
         ),
     },
     {
+        "func": "自定义战报",
+        "trigger_method": _method("战报", ("自定义战报",)) + " &lt;天数&gt;（1–90，例如 `战报 3`）",
+        "trigger_condition": "任何时候都可以查",
+        "brief_des": "把最近 N 天的战报聚合成一份：对局、胜率、消耗资金、漏怪、称号榜",
+        "detail_des": (
+            "按天累加数字项，胜率重新相除；参战博士按账号去重；称号榜次数相加、取区间第一。\n\n"
+            "`战报 1` 就是今日战报；周报/月报只是定时推送同一套区间战报。"
+        ),
+    },
+    {
         "func": "日报定时推送",
         "trigger_method": "自动：每天 `stronghold_report_time`（默认 23:00）",
         "trigger_condition": (
@@ -110,6 +120,8 @@ MENU_DATA: List[Dict[str, Any]] = [
         ),
         "brief_des": "每天 23 点把日报发到群里",
         "detail_des": (
+            "日报每天 `stronghold_report_time`（默认 23:00）；周报每周日、月报每月最后一天，"
+            "时刻分别是日报 +1 / +2 分钟，避免撞车。\n\n"
             "时区由 `stronghold_report_tz` 决定（默认 Asia/Shanghai），日界也用这个时区。\n\n"
             f"管理员在群里发 `{_P}日报 开启` / `{_P}日报 关闭` 即可订阅/退订本群"
             "（管理员 = `SUPERUSERS` 或 `stronghold_admins`），改动立即生效、重启不丢。\n\n"

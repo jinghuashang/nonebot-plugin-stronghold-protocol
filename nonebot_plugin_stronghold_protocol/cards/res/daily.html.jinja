@@ -2,7 +2,7 @@
 
 {%- block body -%}
 <section class="section">
-  <div class="section-head"><span class="kicker">SUMMARY</span><h2>今日概览</h2></div>
+  <div class="section-head"><span class="kicker">SUMMARY</span><h2>{{ summary_title | default("今日概览") }}</h2></div>
   <div class="section-body section-pad">
     <div class="kpis">
       {% for k in kpis -%}

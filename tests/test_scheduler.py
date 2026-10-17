@@ -8,7 +8,12 @@ from zoneinfo import ZoneInfo
 from nonebot_plugin_stronghold_protocol import scheduler as scheduler_mod
 from nonebot_plugin_stronghold_protocol.config import Config
 from nonebot_plugin_stronghold_protocol.models import DailyReport, DailySummary
-from nonebot_plugin_stronghold_protocol.scheduler import DailyReportScheduler, parse_hhmm
+from nonebot_plugin_stronghold_protocol.scheduler import (
+    DailyReportScheduler,
+    MonthlyReportScheduler,
+    WeeklyReportScheduler,
+    parse_hhmm,
+)
 from nonebot_plugin_stronghold_protocol.service import StrongholdService
 from nonebot_plugin_stronghold_protocol.storage import BindingStore
 
@@ -216,3 +221,50 @@ async def test_fire_builds_a_daily_image(tmp_path, monkeypatch):
     sched = DailyReportScheduler(service, service.config)
     await sched.fire()
     assert seen["kind"] == "daily" and seen["date"] == "2026-10-15"
+
+
+def test_weekly_fires_sunday_one_minute_after_daily(tmp_path):
+    service = StubService(tmp_path, stronghold_report_time="23:00", stronghold_report_tz="Asia/Shanghai")
+    sched = WeeklyReportScheduler(service, service.config)
+
+    # 2026-10-17 周六 → 次日（周日）23:01
+    assert sched.next_fire_at(datetime(2026, 10, 17, 12, 0, tzinfo=TZ)) == datetime(2026, 10, 18, 23, 1, tzinfo=TZ)
+    # 周日 23:00 还没到 23:01 → 还是今天
+    assert sched.next_fire_at(datetime(2026, 10, 18, 23, 0, tzinfo=TZ)) == datetime(2026, 10, 18, 23, 1, tzinfo=TZ)
+    # 周日 23:30 已过 → 下周日
+    assert sched.next_fire_at(datetime(2026, 10, 18, 23, 30, tzinfo=TZ)) == datetime(2026, 10, 25, 23, 1, tzinfo=TZ)
+
+
+def test_monthly_fires_last_day_two_minutes_after_daily(tmp_path):
+    service = StubService(tmp_path, stronghold_report_time="23:00", stronghold_report_tz="Asia/Shanghai")
+    sched = MonthlyReportScheduler(service, service.config)
+
+    assert sched.next_fire_at(datetime(2026, 10, 5, 12, 0, tzinfo=TZ)) == datetime(2026, 10, 31, 23, 2, tzinfo=TZ)
+    assert sched.next_fire_at(datetime(2026, 10, 31, 23, 30, tzinfo=TZ)) == datetime(2026, 11, 30, 23, 2, tzinfo=TZ)
+    assert sched.next_fire_at(datetime(2028, 2, 1, 0, 0, tzinfo=TZ)) == datetime(2028, 2, 29, 23, 2, tzinfo=TZ)
+
+
+def test_period_times_follow_a_changed_daily_time(tmp_path):
+    service = StubService(tmp_path, stronghold_report_time="09:59", stronghold_report_tz="Asia/Shanghai")
+    assert WeeklyReportScheduler(service, service.config).fire_time() == (10, 0)
+    assert MonthlyReportScheduler(service, service.config).fire_time() == (10, 1)
+
+
+async def test_weekly_fire_aggregates_seven_days(tmp_path, monkeypatch):
+    service = StubService(tmp_path, stronghold_report_groups=[111])
+    bot = StubBot()
+    monkeypatch.setattr(scheduler_mod, "get_bots", lambda: {"1": bot})
+    sched = WeeklyReportScheduler(service, service.config)
+
+    results = await sched.fire()
+    assert service.daily_calls == 7, "周报要取 7 天"
+    assert results and "111 已发送" in results[0]
+    assert "周报" in bot.sent[0][1]
+
+
+async def test_period_fire_without_groups_skips(tmp_path, monkeypatch):
+    service = StubService(tmp_path, stronghold_report_groups=[])
+    monkeypatch.setattr(scheduler_mod, "get_bots", lambda: {"1": StubBot()})
+    sched = MonthlyReportScheduler(service, service.config)
+    assert await sched.fire() == []
+    assert service.daily_calls == 0

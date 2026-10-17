@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 from .bridge import BridgeClient, BridgeError
 from .config import Config
 from .models import BindChallenge, BindResult, DailyReport, PlayerProfile, ServerStatus
+from .period import period_report
 from .storage import Binding, BindingStore, ReportGroupStore, default_data_dir
 
 
@@ -65,6 +66,10 @@ class StrongholdService:
 
     async def daily(self, day: Optional[date] = None) -> DailyReport:
         return await self.client.daily(day)
+
+    async def period_daily(self, days: int, end: Optional[date] = None) -> DailyReport:
+        """区间战报：把最近 ``days`` 天（含今天）的日报聚合在一起。"""
+        return await period_report(self.daily, days, end or self.report_date())
 
     # ---- 群日报订阅（「日报 开启 / 日报 关闭」）--------------------------------------------------
 

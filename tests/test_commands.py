@@ -117,7 +117,7 @@ async def test_plugin_registers_every_command():
         for cls in group
         if getattr(getattr(cls, "plugin", None), "id_", None) == "nonebot_plugin_stronghold_protocol"
     ]
-    assert len(ours) == 8, "8 条命令都要注册上"
+    assert len(ours) == 9, "9 条命令都要注册上"
     loaded = [p for p in nonebot.get_loaded_plugins() if p.metadata and p.metadata.name == "卫戍协议"]
     assert loaded, "插件本身要被 NoneBot 登记为已加载"
     assert loaded[0].metadata.type == "application"
@@ -402,3 +402,24 @@ async def test_report_toggle_is_idempotent(plugin_service):
     bot = make_bot()
     await dispatch(bot, group_event("/日报 关闭", user_id=10002))
     assert "本来就是关闭的" in bot.reply
+
+
+# ---- 自定义战报 ---------------------------------------------------------------------------------
+
+async def test_custom_report_command_aggregates_days(plugin_service, bridge_server):
+    bridge_server.set("GET", "/api/bot/v1/daily", {
+        "ok": True, "protocol": 1, "date": "2026-10-17",
+        "summary": {"matches": 2, "finished": 2, "victories": 1, "defeats": 1, "winRate": 0.5,
+                    "players": 2, "humans": 3, "goldSpent": 100, "leaks": 4, "rounds": 20},
+        "titles": {}, "players": [],
+    })
+    bot = make_bot()
+    await dispatch(bot, private_event("/战报 3"))
+    assert "近 3 天战报" in bot.reply
+    assert "对局 6 局" in bot.reply, "3 天 × 2 局"
+
+
+async def test_custom_report_rejects_bad_days(plugin_service):
+    bot = make_bot()
+    await dispatch(bot, private_event("/战报 0"))
+    assert "用法" in bot.reply

@@ -247,7 +247,8 @@ def _board_block(title_id: str, board: Optional[TitleBoard], max_holders: int) -
     }
 
 
-def daily_view(report: DailyReport, max_titles: int = 1, tz: Optional[tzinfo] = None) -> Dict[str, Any]:
+def daily_view(report: DailyReport, max_titles: int = 1, tz: Optional[tzinfo] = None, *,
+               title: str = "今日战报", hero_cap: str = "今日对局", span: str = "今日") -> Dict[str, Any]:
     s = report.summary
     matches = s.matches or s.finished
     rate = s.win_rate if s.win_rate > 0 else (s.victories / matches if matches else 0.0)
@@ -283,17 +284,17 @@ def daily_view(report: DailyReport, max_titles: int = 1, tz: Optional[tzinfo] = 
         weekday = ""
     return {
         "kind": "daily",
-        "crumb": "卫戍协议 / 今日战报",
-        "title": "今日战报",
+        "crumb": f"卫戍协议 / {title}",
+        "title": title,
         "hero": {
             "num": str(matches),
-            "cap": "今日对局",
+            "cap": hero_cap,
             "sub": f"{date_text} {weekday}".strip(),
         },
         "lede": {
             "title": "统计口径",
             "lines": [
-                "五个称号 + 今日胜率 + 今日消耗资金。",
+                f"五个称号 + {span}胜率 + {span}消耗资金。",
                 "训练局不计入胜率；" + (
                     "每个称号只列第一人。" if max_titles == 1
                     else (f"每个称号最多列 {max_titles} 人。" if max_titles > 0 else "称号全部列出。")
@@ -302,6 +303,7 @@ def daily_view(report: DailyReport, max_titles: int = 1, tz: Optional[tzinfo] = 
         },
         "date": date_text,
         "weekday": weekday,
+        "summary_title": "今日概览" if span == "今日" else "区间概览",
         "kpis": kpis,
         "boards": boards,
         "foot": foot,

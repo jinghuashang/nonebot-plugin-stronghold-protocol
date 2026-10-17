@@ -12,7 +12,7 @@ from nonebot.plugin import PluginMetadata
 from .config import Config
 from .menu_data import MENU_DATA
 from .runtime import command_prefix, set_service
-from .scheduler import DailyReportScheduler
+from .scheduler import DailyReportScheduler, MonthlyReportScheduler, WeeklyReportScheduler
 from .service import StrongholdService
 
 __version__ = "0.1.0"
@@ -29,8 +29,10 @@ USAGE = f"""\
 {P}解绑           解除绑定
 {P}我的账号        查看当前绑定
 {P}日报 [日期]     今日（或指定日期）日报
+{P}战报 <天数>     近 N 天（1–90）的战报，例如 战报 3
 
-日报每天 23:00 自动推送到配置的群（stronghold_report_groups）。
+日报每天 23:00、周报每周日 23:01、月报每月最后一天 23:02 自动推送到配置的群
+（stronghold_report_groups；周报/月报比日报晚 1/2 分钟）。
 """
 
 __plugin_meta__ = PluginMetadata(
@@ -59,6 +61,8 @@ driver = get_driver()
 _config = get_plugin_config(Config)
 _service = StrongholdService(_config)
 _scheduler = DailyReportScheduler(_service, _config)
+_weekly = WeeklyReportScheduler(_service, _config)
+_monthly = MonthlyReportScheduler(_service, _config)
 set_service(_service)
 
 
@@ -66,11 +70,14 @@ set_service(_service)
 async def _stronghold_startup() -> None:
     _service.store.load_sync()
     _scheduler.start()
+    _weekly.start()
+    _monthly.start()
 
 
 @driver.on_shutdown
 async def _stronghold_shutdown() -> None:
-    await _scheduler.stop()
+    for scheduler in (_scheduler, _weekly, _monthly):
+        await scheduler.stop()
 
 
 from . import commands  # noqa: E402,F401  —— 导入即注册命令（必须在 set_service 之后）

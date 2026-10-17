@@ -152,7 +152,7 @@ def test_metadata_declares_the_menu():
     extra = plugin.metadata.extra
     assert extra["pmn"]["template"] == "stronghold"
     assert extra["pmn"]["markdown"] is True
-    assert len(extra["menu_data"]) == 8
+    assert len(extra["menu_data"]) == 9
     for item in extra["menu_data"]:
         assert set(item) >= {"func", "trigger_method", "trigger_condition", "brief_des", "detail_des"}
 
@@ -166,7 +166,7 @@ def test_index_view_counts_and_groups(menu_models):
     ours, other = menu_models
     view = build_index_view([ours, other], showing_hidden=False)
     assert view["plugin_count"] == 2
-    assert view["func_count"] == 8
+    assert view["func_count"] == 9
     assert [g["title"] for g in view["groups"]] == ["应用"]
     assert [c["no"] for g in view["groups"] for c in g["cards"]] == [1, 2]
     assert view["groups"][0]["cards"][0]["is_ours"] is True
@@ -178,11 +178,11 @@ def test_detail_view_lists_functions(menu_models):
 
     ours, _ = menu_models
     view = build_detail_view(ours)
-    assert view["func_count"] == 8
+    assert view["func_count"] == 9
     assert view["is_ours"] is True
     assert view["plugin_type"] == "application"
     assert view["adapters"] == ["~onebot.v11"]
-    assert [e["no"] for e in view["func_entries"]] == list(range(1, 9))
+    assert [e["no"] for e in view["func_entries"]] == list(range(1, 10))
     assert view["func_entries"][0]["func"].func == "在线玩家"
 
 
