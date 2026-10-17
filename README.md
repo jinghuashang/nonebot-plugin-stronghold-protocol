@@ -198,7 +198,9 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 | `战绩` | 个人档案：今日 / 累计双面板 + 称号 + 最近对局表 |
 | `日报` | 日报海报：今日概览 KPI 一行五个 + 称号榜（每项独立配色） |
 
-绑定流程、用法提示、报错走一张通用提示卡。出图需要 [nonebot-plugin-htmlrender](https://github.com/kexue-z/nonebot-plugin-htmlrender)：
+绑定流程、用法提示、报错走一张通用提示卡。卡片里的图标是内联 SVG，不依赖 emoji 字体；但玩家昵称里可能带 emoji —— 想让它们正常显示，在渲染环境里装一份 Noto Color Emoji 即可。
+
+出图需要 [nonebot-plugin-htmlrender](https://github.com/kexue-z/nonebot-plugin-htmlrender)：
 
     pip install "nonebot-plugin-stronghold-protocol[images] @ git+https://github.com/jinghuashang/nonebot-plugin-stronghold-protocol.git"
     # 或者直接 pip install nonebot-plugin-htmlrender
