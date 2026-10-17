@@ -168,7 +168,7 @@ def test_render_daily_full():
         },
     )
     text = render_daily(report, tz=TZ)
-    assert "🏰 卫戍协议日报 · 2026-10-15" in text
+    assert "🏰 今日战报 · 2026-10-15" in text
     assert "对局 12 局 · 胜 8 / 负 4 · 胜率 66.7%" in text
     assert "参战博士 9 人 · 漏怪 37 只 · 消耗资金 12,345" in text
     assert "另有训练局 2 局（不计入胜率）" in text

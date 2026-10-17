@@ -288,7 +288,7 @@ def _board_lines(board: Optional[TitleBoard], max_holders: int = 1, title_id: st
 
 
 def render_daily(
-    report: DailyReport, *, max_titles: int = 1, tz: Optional[tzinfo] = None, title: str = "卫戍协议日报"
+    report: DailyReport, *, max_titles: int = 1, tz: Optional[tzinfo] = None, title: str = "今日战报"
 ) -> str:
     """``/日报`` 与定时推送共用的正文。"""
     date_text = report.date or fmt_time(report.server_now, tz, "%Y-%m-%d")

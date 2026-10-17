@@ -92,8 +92,8 @@ MENU_DATA: List[Dict[str, Any]] = [
         ),
     },
     {
-        "func": "今日日报",
-        "trigger_method": _method("日报", ("今日日报", "daily")) + "（可带日期，如 `10-15`、`昨天`）",
+        "func": "今日战报",
+        "trigger_method": _method("日报", ("今日战报", "daily")) + "（可带日期，如 `10-15`、`昨天`）",
         "trigger_condition": "任何时候都可以查，历史日期也可以",
         "brief_des": "当日七项指标：五个称号 + 胜率 + 消耗资金",
         "detail_des": (

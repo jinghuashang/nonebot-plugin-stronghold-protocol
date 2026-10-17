@@ -283,8 +283,8 @@ def daily_view(report: DailyReport, max_titles: int = 1, tz: Optional[tzinfo] = 
         weekday = ""
     return {
         "kind": "daily",
-        "crumb": "卫戍协议 / 今日日报",
-        "title": "今日日报",
+        "crumb": "卫戍协议 / 今日战报",
+        "title": "今日战报",
         "hero": {
             "num": str(matches),
             "cap": "今日对局",

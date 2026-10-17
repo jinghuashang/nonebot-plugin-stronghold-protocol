@@ -286,7 +286,7 @@ async def _toggle_report(matcher, event: Event, enable: bool) -> None:
     await _send_note(matcher, event, text, title="日报设置")
 
 
-daily_cmd = on_command("日报", aliases={"今日日报", "daily"}, priority=5, block=True)
+daily_cmd = on_command("日报", aliases={"今日战报", "今日日报", "daily"}, priority=5, block=True)
 
 
 @daily_cmd.handle()

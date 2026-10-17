@@ -246,7 +246,7 @@ async def test_daily_command(plugin_service, bridge_server):
     })
     bot = make_bot()
     await dispatch(bot, group_event("/日报"))
-    assert "🏰 卫戍协议日报 · 2026-10-15" in bot.reply
+    assert "🏰 今日战报 · 2026-10-15" in bot.reply
     assert "消耗资金 12,345" in bot.reply
     assert "阿米娅 ×2" in bot.reply
 

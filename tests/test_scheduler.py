@@ -88,7 +88,7 @@ async def test_fire_renders_and_sends(tmp_path, monkeypatch):
     assert len(bot.sent) == 1
     group_id, message = bot.sent[0]
     assert group_id == 123456789
-    assert "🏰 卫戍协议日报 · 2026-10-15" in message
+    assert "🏰 今日战报 · 2026-10-15" in message
     assert "对局 2 局 · 胜 1 / 负 1 · 胜率 50.0%" in message
     assert any("987654321 发送失败" in r for r in results)
     assert any("123456789 已发送" in r for r in results)
