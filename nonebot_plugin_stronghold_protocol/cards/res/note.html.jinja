@@ -3,7 +3,10 @@
 {%- block body -%}
 <div class="note note--{{ tone }}">
   {% for line in lines -%}
-  <p>{% if loop.first %}<span class="icon">{{ icon }}</span>{% endif %}{{ line }}</p>
+  <p>{% if loop.first -%}
+    <span class="icon">{% if tone == "ok" %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5L20 6.5"/></svg>{% elif tone == "error" %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l9 16.5H3z"/><path d="M12 9.5v4.5"/><path d="M12 17.2v.02"/></svg>{% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s7.2-3.6 7.2-9.2V5.9L12 3 4.8 5.9v5.4c0 5.6 7.2 9.2 7.2 9.2z"/><path d="M9.2 11.9l2 2 3.6-3.8"/></svg>{% endif %}</span>{% endif -%}
+    {{ line }}
+  </p>
   {% endfor -%}
 </div>
 {%- endblock -%}

@@ -42,10 +42,16 @@ ROSTER_GROUPS = [
 ]
 
 
-def note_view(title: str, body: str, tone: str = "info", icon: str = "🛡") -> Dict[str, Any]:
+def note_view(title: str, body: str, tone: str = "info") -> Dict[str, Any]:
     """通用提示卡片（绑定流程、报错、用法提示）。``tone``：``info`` / ``ok`` / ``error``。"""
     lines = [line for line in body.splitlines() if line.strip()]
-    return {"kind": "note", "title": title, "tone": tone, "icon": icon, "lines": lines}
+    return {
+        "kind": "note",
+        "crumb": "卫戍协议 / 提示",
+        "title": title,
+        "tone": tone,
+        "lines": lines,
+    }
 
 
 def status_view(status: ServerStatus, limit: int = 20, tz: Optional[tzinfo] = None) -> Dict[str, Any]:
@@ -81,9 +87,20 @@ def status_view(status: ServerStatus, limit: int = 20, tz: Optional[tzinfo] = No
         })
     return {
         "kind": "status",
+        "crumb": "卫戍协议 / 在线玩家",
         "title": "在线玩家",
-        "micro": "ONLINE",
-        "subtitle": status.app and f"服 v{status.app} · {status.counts.online} 人在线" or "",
+        "hero": {
+            "num": str(counts.online),
+            "cap": "人在线",
+            "sub": f"服 v{status.app}" if status.app else "实时在线",
+        },
+        "lede": {
+            "title": "使用指引",
+            "lines": [
+                "按状态分组；「同盟 ××××」是房间码，方便约人。",
+                "数据来自服务端实时状态，打开卡片时拉取。",
+            ],
+        },
         "chips": chips,
         "groups": groups,
         "more": max(0, len(status.players) - len(players)),
@@ -116,9 +133,20 @@ def matches_view(status: ServerStatus, limit: int = 10, tz: Optional[tzinfo] = N
         })
     return {
         "kind": "matches",
+        "crumb": "卫戍协议 / 在线对局",
         "title": "在线对局",
-        "micro": "MATCHES",
-        "subtitle": f"共 {counts.matches} 局在打 · {counts.rooms} 个房间",
+        "hero": {
+            "num": str(counts.matches),
+            "cap": "局进行中",
+            "sub": f"{counts.rooms} 个房间",
+        },
+        "lede": {
+            "title": "怎么读",
+            "lines": [
+                "进度条 = 当前回合 / 最终回合。",
+                "LP 是博士当前生命，灰掉 = 已阵亡。",
+            ],
+        },
         "chips": [("对局", str(counts.matches), "num"), ("房间", str(counts.rooms), "num"),
                   ("观战", str(counts.spectators), "num")],
         "blocks": blocks,
@@ -159,13 +187,27 @@ def profile_view(profile: PlayerProfile, limit: int = 5, tz: Optional[tzinfo] = 
             "gold": f"{me.gold_spent:,}" if me else "—",
             "leaks": me.leaks if me else 0,
         })
+    chips = []
+    if profile.player_id:
+        chips.append(("账号", profile.player_id, "num"))
+    chips.append(("状态", "已绑定" if profile.bound else "未绑定", "num"))
     return {
         "kind": "profile",
+        "crumb": "卫戍协议 / 战绩查询",
         "title": profile.name or profile.player_id or "未知博士",
-        "micro": "PROFILE",
-        "subtitle": "数据来自服务器的只读接口",
-        "account": profile.player_id,
-        "bound": profile.bound,
+        "hero": {
+            "num": str(profile.total.matches),
+            "cap": "累计对局",
+            "sub": f"胜率 {fmt_win_rate(profile.total)}",
+        },
+        "lede": {
+            "title": "数据来源",
+            "lines": [
+                "服务端结算记录；「今日」按配置时区划分。",
+                "绑定账号后，发「战绩」不填昵称就是你自己。",
+            ],
+        },
+        "chips": chips,
         "today": _big_rows(profile.today),
         "total": _big_rows(profile.total),
         "titles": titles,
@@ -236,8 +278,20 @@ def daily_view(report: DailyReport, max_titles: int = 5, tz: Optional[tzinfo] = 
         weekday = ""
     return {
         "kind": "daily",
-        "title": "卫戍协议日报",
-        "micro": "DAILY",
+        "crumb": "卫戍协议 / 今日日报",
+        "title": "今日日报",
+        "hero": {
+            "num": str(matches),
+            "cap": "今日对局",
+            "sub": f"{date_text} {weekday}".strip(),
+        },
+        "lede": {
+            "title": "统计口径",
+            "lines": [
+                "五个称号 + 今日胜率 + 今日消耗资金。",
+                "训练局不计入胜率；" + (f"每个称号最多列 {max_titles} 人。" if max_titles > 0 else "称号全部列出。"),
+            ],
+        },
         "date": date_text,
         "weekday": weekday,
         "kpis": kpis,

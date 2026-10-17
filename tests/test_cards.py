@@ -104,7 +104,9 @@ def test_profile_view_has_big_numbers_and_medals():
         recent=[],
     )
     view = views.profile_view(profile, tz=TZ)
-    assert view["account"] == "a_0000000001" and view["bound"] is True
+    assert ("账号", "a_0000000001", "num") in view["chips"]
+    assert ("状态", "已绑定", "num") in view["chips"]
+    assert view["hero"] == {"num": "42", "cap": "累计对局", "sub": "胜率 71.4%"}
     assert view["total"]["matches"] == 42 and view["total"]["rate"] == "71.4%"
     assert view["total"]["gold"] == "15,230"
     names = [t["name"] for t in view["titles"]]

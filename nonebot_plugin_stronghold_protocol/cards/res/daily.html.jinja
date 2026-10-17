@@ -1,39 +1,41 @@
 {%- extends "base.html.jinja" -%}
 
 {%- block body -%}
-<div class="poster-date">
-  <b>{{ date }}</b>
-  <span>{{ weekday }}</span>
-</div>
-
-<div class="kpis">
-  {% for k in kpis -%}
-  <div class="kpi">
-    <i>{{ k.label }}</i>
-    <b class="{{ k.cls }}">{{ k.value }}</b>{% if k.unit %}<span>{{ k.unit }}</span>{% endif %}
+<section class="section">
+  <div class="section-head"><span class="kicker">SUMMARY</span><h2>今日概览</h2></div>
+  <div class="section-body section-pad">
+    <div class="kpis">
+      {% for k in kpis -%}
+      <div class="kpi">
+        <i>{{ k.label }}</i>
+        <b class="{{ k.cls }}">{{ k.value }}</b>{% if k.unit %}<span>{{ k.unit }}</span>{% endif %}
+      </div>
+      {% endfor -%}
+    </div>
+    {% if empty %}<div class="empty">今天还没有对局记录。</div>{% endif %}
   </div>
-  {% endfor -%}
-</div>
+</section>
 
-{% if empty -%}
-<div class="more">今天还没有对局记录。</div>
-{%- endif %}
-
-{% for b in boards -%}
-<div class="board acc-{{ b.accent }}">
-  <div class="board-head">
-    <span class="board-name">{{ b.name }}</span>
-    <span class="board-note">{{ b.note }}</span>
+<section class="section">
+  <div class="section-head"><span class="kicker">TITLES</span><h2>称号榜</h2></div>
+  <div class="section-body section-pad">
+    {% for b in boards -%}
+    <div class="board acc-{{ b.accent }}">
+      <div class="board-head">
+        <span class="board-name">{{ b.name }}</span>
+        <span class="board-note">{{ b.note }}</span>
+      </div>
+      <div class="board-body">
+        {%- if b.texts -%}
+          {{ b.texts | join(' · ') }}{% if b.more %} · …… 还有 {{ b.more }} 人{% endif %}
+        {%- else -%}
+          今日无人获得
+        {%- endif -%}
+      </div>
+    </div>
+    {% endfor -%}
   </div>
-  <div class="board-body">
-    {%- if b.texts -%}
-      {{ b.texts | join(' · ') }}{% if b.more %} · …… 还有 {{ b.more }} 人{% endif %}
-    {%- else -%}
-      今日无人获得
-    {%- endif -%}
-  </div>
-</div>
-{% endfor -%}
+</section>
 
 {% if foot -%}
 <div class="more">{{ foot | join(' · ') }}</div>

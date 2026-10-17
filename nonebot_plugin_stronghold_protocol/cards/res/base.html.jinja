@@ -7,18 +7,43 @@
   <body>
     <div class="wrap">
       <div class="card">
-        <div class="head">
-          <div>
+        <header class="hero">
+          <div class="hero-main">
+            <div class="crumb"><i></i>{{ crumb }}</div>
             <h1>{{ title }}</h1>
-            {% if subtitle %}<div class="sub">{{ subtitle }}</div>{% endif %}
           </div>
-          {% if micro %}<div class="micro">{{ micro }}</div>{% endif %}
+          {% if hero -%}
+          <div class="hero-stat">
+            <div class="hero-cap">{{ hero.cap }}</div>
+            <b>{{ hero.num }}</b>
+            {% if hero.sub %}<div class="hero-sub">{{ hero.sub }}</div>{% endif %}
+          </div>
+          {%- endif %}
+        </header>
+
+        <div class="strip"><i class="a"></i><i class="b"></i></div>
+
+        {% if lede -%}
+        <div class="lede">
+          <div class="lede-k">{{ lede.title }}</div>
+          <div class="lede-v">{% for line in lede.lines %}<div>{{ line }}</div>{% endfor %}</div>
         </div>
+        {%- endif %}
+
+        {% if chips -%}
+        <div class="chips">
+          {% for label, value, cls in chips -%}
+          <span class="chip"><i>{{ label }}</i><b class="{{ cls }}">{{ value }}</b></span>
+          {% endfor -%}
+        </div>
+        {%- endif %}
+
         {% block body %}{% endblock -%}
-        <div class="foot">
+
+        <footer class="foot">
           <span>{{ brand }}</span>
           <span>{{ generated_at }}</span>
-        </div>
+        </footer>
       </div>
     </div>
   </body>

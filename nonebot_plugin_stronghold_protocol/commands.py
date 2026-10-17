@@ -27,13 +27,13 @@ async def _send(matcher, event: Event, kind: str, context: dict, text: str) -> N
 
 
 async def _send_note(matcher, event: Event, text: str, *, title: str = "提示",
-                     tone: str = "info", icon: str = "🛡") -> None:
-    """短消息（绑定流程、用法、报错）走通用提示卡。"""
-    await cards.reply(matcher, event, "note", cards.views.note_view(title, text, tone, icon), text)
+                     tone: str = "info") -> None:
+    """短消息（绑定流程、用法、报错）走通用提示卡（图标由 tone 决定，不依赖 emoji 字体）。"""
+    await cards.reply(matcher, event, "note", cards.views.note_view(title, text, tone), text)
 
 
 async def _send_error(matcher, event: Event, text: str) -> None:
-    await _send_note(matcher, event, text, title="出错了", tone="error", icon="⚠️")
+    await _send_note(matcher, event, text, title="出错了", tone="error")
 
 USAGE_BIND = (
     f"用法：{P}绑定 <游戏账号邮箱>  → 验证码发到该邮箱\n"
@@ -115,7 +115,7 @@ async def handle_profile(event: Event, arg: Message = CommandArg()) -> None:
             binding = service.binding(target_qq)
             if binding is None:
                 await _send_note(profile_cmd, event, f"TA（{target_qq}）还没绑定游戏账号，让 TA 发 {P}绑定 <邮箱> 吧",
-                                 title="战绩查询", icon="🎖")
+                                 title="战绩查询")
                 return
             profile = await service.profile(player_id=binding.player_id)
         elif text:
@@ -128,7 +128,7 @@ async def handle_profile(event: Event, arg: Message = CommandArg()) -> None:
                 profile_cmd, event,
                 "你还没绑定游戏账号。\n"
                 f"先 {P}绑定 <游戏账号邮箱> 绑定，或者用 {P}战绩 <昵称> 直接按昵称查。",
-                title="战绩查询", icon="🎖",
+                title="战绩查询",
             )
             return
         await _send_error(profile_cmd, event, describe_error(e))
@@ -151,7 +151,7 @@ async def handle_bind(event: Event, arg: Message = CommandArg()) -> None:
     parts = arg.extract_plain_text().split()
     qq = event.get_user_id()
     if not parts:
-        await _send_note(bind_cmd, event, USAGE_BIND, title="绑定游戏账号", icon="🔗")
+        await _send_note(bind_cmd, event, USAGE_BIND, title="绑定游戏账号")
         return
 
     email = parts[0]
@@ -162,14 +162,14 @@ async def handle_bind(event: Event, arg: Message = CommandArg()) -> None:
             # /绑定 <邮箱> <验证码>：一步完成（要求之前已经发过码）
             result = await service.finish_bind(qq, code)
             await _send_note(bind_cmd, event, f"绑定成功：{result.name or result.player_id}（{result.player_id}）",
-                             title="绑定游戏账号", tone="ok", icon="✅")
+                             title="绑定游戏账号", tone="ok")
             return
         challenge = await service.start_bind(qq, email)
     except BridgeError as e:
         if e.code == "request_not_found":
             await _send_note(bind_cmd, event,
                              f"没有待验证的请求：请先发 {P}绑定 <邮箱> 获取验证码，再回 {P}验证 <验证码>",
-                             title="绑定游戏账号", icon="🔗")
+                             title="绑定游戏账号")
             return
         await _send_error(bind_cmd, event, describe_error(e))
         return
@@ -179,7 +179,7 @@ async def handle_bind(event: Event, arg: Message = CommandArg()) -> None:
     await _send_note(
         bind_cmd, event,
         f"验证码已发到 {where}。\n请在 {minutes} 分钟内回复：{P}验证 <验证码>",
-        title="绑定游戏账号", tone="ok", icon="📧",
+        title="绑定游戏账号", tone="ok",
     )
 
 
@@ -192,19 +192,19 @@ async def handle_verify(event: Event, arg: Message = CommandArg()) -> None:
     code = arg.extract_plain_text().strip()
     if not code:
         await _send_note(verify_cmd, event, f"用法：{P}验证 <验证码>（先用 {P}绑定 <邮箱> 获取）",
-                         title="完成绑定", icon="🔗")
+                         title="完成绑定")
         return
     try:
         result = await service.finish_bind(event.get_user_id(), code)
     except BridgeError as e:
         if e.code == "request_not_found":
             await _send_note(verify_cmd, event, f"没有待验证的请求：请先发 {P}绑定 <邮箱> 获取验证码",
-                             title="完成绑定", icon="🔗")
+                             title="完成绑定")
             return
         await _send_error(verify_cmd, event, describe_error(e))
         return
     await _send_note(verify_cmd, event, f"绑定成功：{result.name or result.player_id}（{result.player_id}）",
-                     title="完成绑定", tone="ok", icon="✅")
+                     title="完成绑定", tone="ok")
 
 
 unbind_cmd = on_command("解绑", aliases={"解绑账号"}, priority=5, block=True)
@@ -215,10 +215,10 @@ async def handle_unbind(event: Event) -> None:
     service = get_service()
     binding = await service.unbind(event.get_user_id())
     if binding is None:
-        await _send_note(unbind_cmd, event, "你还没有绑定过游戏账号", title="解绑", icon="🔓")
+        await _send_note(unbind_cmd, event, "你还没有绑定过游戏账号", title="解绑")
         return
     await _send_note(unbind_cmd, event, f"已解绑：{binding.name or binding.player_id}（{binding.player_id}）",
-                     title="解绑", tone="ok", icon="🔓")
+                     title="解绑", tone="ok")
 
 
 me_cmd = on_command("我的账号", aliases={"我的绑定", "whoami"}, priority=5, block=True)
@@ -229,17 +229,16 @@ async def handle_me(event: Event) -> None:
     service = get_service()
     binding = service.binding(event.get_user_id())
     if binding is None:
-        await _send_note(me_cmd, event, "你还没有绑定游戏账号。\n" + USAGE_BIND, title="我的账号", icon="🎖")
+        await _send_note(me_cmd, event, "你还没有绑定游戏账号。\n" + USAGE_BIND, title="我的账号")
         return
     lines = [
-        "🎖 我的游戏账号",
         f"昵称：{binding.name or '（服务端未提供）'}",
         f"playerId：{binding.player_id}",
         f"邮箱：{binding.email or '（未记录）'}",
     ]
     if binding.bound_at:
         lines.append(f"绑定时间：{fmt_time(binding.bound_at, service.tz, '%Y-%m-%d %H:%M')}")
-    await _send_note(me_cmd, event, "\n".join(lines[1:]), title="我的账号", icon="🎖")
+    await _send_note(me_cmd, event, "\n".join(lines), title="我的账号")
 
 
 # ---- 日报 ---------------------------------------------------------------------------------------
@@ -256,7 +255,7 @@ async def _toggle_report(matcher, event: Event, enable: bool) -> None:
         await _send_note(
             matcher, event,
             f"日报开关只在群里生效：到群里发「{P}日报 {'开启' if enable else '关闭'}」即可。",
-            title="日报设置", icon="🏰",
+            title="日报设置",
         )
         return
     if not is_admin(event.get_user_id()):
@@ -264,7 +263,7 @@ async def _toggle_report(matcher, event: Event, enable: bool) -> None:
             matcher, event,
             "只有管理员能开关日报推送。\n"
             "管理员 = 机器人的 SUPERUSERS 或插件配置 stronghold_admins。",
-            title="没有权限", tone="error", icon="⚠️",
+            title="没有权限", tone="error",
         )
         return
     service = get_service()
@@ -278,13 +277,13 @@ async def _toggle_report(matcher, event: Event, enable: bool) -> None:
             )
         else:
             text = f"本群日报推送本来就是开启的。\n手动查看：{P}日报"
-        await _send_note(matcher, event, text, title="日报设置", tone="ok", icon="🔔")
+        await _send_note(matcher, event, text, title="日报设置", tone="ok")
         return
     if changed:
         text = f"本群日报推送已关闭。\n手动查看不受影响：{P}日报"
     else:
         text = f"本群日报推送本来就是关闭的。\n手动查看：{P}日报"
-    await _send_note(matcher, event, text, title="日报设置", icon="🔕")
+    await _send_note(matcher, event, text, title="日报设置")
 
 
 daily_cmd = on_command("日报", aliases={"今日日报", "daily"}, priority=5, block=True)
@@ -304,7 +303,7 @@ async def handle_daily(event: Event, arg: Message = CommandArg()) -> None:
     day = service.parse_date(text, today)
     if text and day is None:
         await _send_note(daily_cmd, event, "日期看不懂呢，可以写 2026-10-15、10-15 或 昨天",
-                         title="日报", icon="🏰")
+                         title="日报")
         return
     try:
         report = await service.daily(day)

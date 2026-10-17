@@ -77,52 +77,170 @@ body {
     linear-gradient(var(--bk-c, var(--mint-500)), var(--bk-c, var(--mint-500))) bottom right / 2px 14px no-repeat;
 }
 
-/* 头部 */
-.head {
+/* 页头：面包屑 + 大标题（左），大数字 + 说明（右）——参考档案式排版 */
+.hero {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 12px;
+  gap: 24px;
+  padding: 2px 0 18px;
   border-bottom: 1px solid var(--line);
 }
 
-.head h1 {
-  margin: 0;
-  color: var(--text-hi);
-  font-size: 23px;
-  letter-spacing: 0.03em;
+.hero-main {
+  min-width: 0;
 }
 
-.head h1::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 0.84em;
-  margin-right: 10px;
-  vertical-align: -5%;
-  background: var(--mint-500);
-}
-
-.head .micro {
-  color: var(--mint-700);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-
-.sub {
-  margin-top: 5px;
+.crumb {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   color: var(--text-lo);
-  font-size: 12.5px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.crumb i {
+  width: 9px;
+  height: 9px;
+  background: var(--mint-500);
+  flex: none;
+}
+
+.hero h1 {
+  margin: 10px 0 0;
+  color: var(--text-hi);
+  font-size: 34px;
+  line-height: 1.15;
   letter-spacing: 0.02em;
 }
 
-.sub b {
-  color: var(--mint-400);
+.hero-stat {
+  flex: none;
+  text-align: right;
+  padding-left: 24px;
+  border-left: 1px solid var(--line-2);
+}
+
+.hero-cap {
+  color: var(--text-lo);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
+.hero-stat b {
+  display: block;
+  color: var(--text-hi);
+  font-family: var(--font-num);
+  font-size: 44px;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-sub {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+}
+
+/* 徽标下沿的双色分隔条（青 / 金，按 72:28 分） */
+.strip {
+  display: flex;
+  height: 5px;
+  margin: 0 -24px;
+}
+
+.strip i {
+  flex: 1;
+}
+
+.strip .a {
+  flex: 72;
+  background: var(--mint-500);
+}
+
+.strip .b {
+  flex: 28;
+  background: var(--gold);
+}
+
+/* 使用指引：左侧标签 + 右侧说明 */
+.lede {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 16px;
+  padding: 16px 0 2px;
+  align-items: start;
+}
+
+.lede-k {
+  border-left: 3px solid var(--mint-500);
+  padding-left: 10px;
+  color: var(--text-hi);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.lede-v {
+  color: var(--text-lo);
+  font-size: 12.5px;
+  line-height: 1.8;
+}
+
+.lede-v div + div {
+  margin-top: 2px;
+}
+
+/* 区块：深色标题带 + 内容面板 */
+.section {
+  margin-top: 18px;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 14px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+}
+
+.section-head .kicker {
+  color: var(--mint-500);
   font-family: var(--font-mono);
-  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.section-head h2 {
+  margin: 0;
+  color: var(--text-hi);
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+
+.section-body {
+  border: 1px solid var(--line);
+  border-top: none;
+  background: var(--bg-2);
+}
+
+.section-pad {
+  padding: 12px 14px;
+}
+
+.empty {
+  padding: 14px 16px;
+  color: var(--text-dim);
+  font-size: 12.5px;
+}
+
+.num {
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
 }
 
 /* 计数条 */
@@ -227,10 +345,10 @@ body {
 }
 
 .roster .row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 94px 74px 76px;
+  column-gap: 14px;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 18px;
   padding: 7px 2px;
   border-bottom: 1px solid rgba(47, 58, 53, 0.55);
 }
@@ -255,30 +373,29 @@ body {
   text-overflow: ellipsis;
 }
 
-.roster .meta {
-  flex: none;
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
+.roster .room,
+.roster .diff,
+.roster .since {
   color: var(--text-lo);
   font-size: 12px;
+  white-space: nowrap;
 }
 
-.roster .meta .room {
+.roster .room {
   font-family: var(--font-mono);
   letter-spacing: 0.06em;
 }
 
-.roster .meta .diff {
+.roster .diff {
   color: var(--text-dim);
   letter-spacing: 0.04em;
 }
 
-.roster .meta .since {
-  min-width: 62px;
+.roster .since {
   text-align: right;
   color: var(--text-dim);
   font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 状态小标签 */
@@ -295,11 +412,12 @@ body {
 /* ---- 战况（/对局）：每房一块 + 回合进度条 --------------------------------------------------- */
 
 .match {
-  margin-top: 14px;
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--mint-500);
-  background: var(--bg-2);
-  padding: 13px 15px;
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.match:last-child {
+  border-bottom: none;
 }
 
 .match-head {
@@ -559,15 +677,14 @@ table.grid .lose {
 }
 
 .kpis {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
-  margin-top: 14px;
 }
 
 .kpi {
-  flex: 1 1 0;
-  min-width: 120px;
+  min-width: 0;
+  white-space: nowrap;
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
   padding: 10px 13px;
@@ -585,7 +702,7 @@ table.grid .lose {
 .kpi b {
   color: var(--mint-400);
   font-family: var(--font-num);
-  font-size: 23px;
+  font-size: 22px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -600,7 +717,7 @@ table.grid .lose {
 }
 
 .board {
-  margin-top: 10px;
+  margin-top: 8px;
   padding: 10px 14px;
   border: 1px solid var(--line);
   border-left: 2px solid var(--acc, var(--mint-500));
@@ -631,6 +748,10 @@ table.grid .lose {
   font-size: 13px;
   font-family: var(--font-num);
   line-height: 1.6;
+}
+
+.section-body .board:first-child {
+  margin-top: 0;
 }
 
 .acc-gold {
@@ -672,7 +793,23 @@ table.grid .lose {
 }
 
 .note .icon {
+  display: inline-flex;
   margin-right: 8px;
+  vertical-align: -3px;
+  color: var(--mint-500);
+}
+
+.note .icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.note--ok .icon {
+  color: var(--mint-400);
+}
+
+.note--error .icon {
+  color: var(--red);
 }
 
 .note p {

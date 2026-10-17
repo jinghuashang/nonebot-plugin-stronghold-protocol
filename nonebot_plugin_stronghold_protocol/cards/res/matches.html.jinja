@@ -1,40 +1,37 @@
 {%- extends "base.html.jinja" -%}
 
 {%- block body -%}
-{% if chips -%}
-<div class="chips">
-  {% for label, value, cls in chips -%}
-  <span class="chip"><i>{{ label }}</i><b class="{{ cls }}">{{ value }}</b></span>
-  {% endfor -%}
-</div>
-{%- endif %}
-
-{% for b in blocks -%}
-<div class="match">
-  <div class="match-head">
-    <span class="room">{{ b.room }}</span>
-    <span class="meta">{{ b.mode }} · {{ b.difficulty }}</span>
-    <span class="time">{{ b.started }} 开始</span>
-  </div>
-  <div class="bar"><div class="fill" style="width: {{ b.progress }}%"></div></div>
-  <div class="bar-label">
-    <span>回合 {{ b.round }} / {{ b.boss }}</span>
-    <span>{{ b.progress }}%</span>
-  </div>
-  <div class="squad">
-    {% for p in b.humans -%}
-    <span class="who{% if not p.alive %} dead{% endif %}">
-      <b>{{ p.name }}</b><span class="lp">LP {{ p.lp }}</span>
-    </span>
+<section class="section">
+  <div class="section-head"><span class="kicker">MATCHES</span><h2>正在进行的对局</h2></div>
+  <div class="section-body">
+    {% for b in blocks -%}
+    <div class="match">
+      <div class="match-head">
+        <span class="num">{{ "%02d" | format(loop.index) }}</span>
+        <span class="room">{{ b.room }}</span>
+        <span class="meta">{{ b.mode }} · {{ b.difficulty }}</span>
+        <span class="time">{{ b.started }} 开始</span>
+      </div>
+      <div class="bar"><div class="fill" style="width: {{ b.progress }}%"></div></div>
+      <div class="bar-label">
+        <span>回合 {{ b.round }} / {{ b.boss }}</span>
+        <span>{{ b.progress }}%</span>
+      </div>
+      <div class="squad">
+        {% for p in b.humans -%}
+        <span class="who{% if not p.alive %} dead{% endif %}">
+          <b>{{ p.name }}</b><span class="lp">LP {{ p.lp }}</span>
+        </span>
+        {% endfor -%}
+        {% if b.bots %}<span class="who"><b>AI</b><span class="lp">×{{ b.bots }}</span></span>{% endif %}
+      </div>
+    </div>
     {% endfor -%}
-    {% if b.bots %}<span class="who"><b>AI</b><span class="lp">×{{ b.bots }}</span></span>{% endif %}
+    {% if not blocks %}<div class="empty">现在没有进行中的对局。</div>{% endif %}
   </div>
-</div>
-{% endfor -%}
+</section>
 
 {% if more -%}
 <div class="more">…… 还有 {{ more }} 局</div>
-{%- elif not blocks -%}
-<div class="more">现在没有进行中的对局。</div>
 {%- endif %}
 {%- endblock -%}
