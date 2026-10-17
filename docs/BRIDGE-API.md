@@ -195,10 +195,10 @@ X-Bot-Token: <BOT_TOKEN>          # 二选一，两个都带时以 Authorization
 
 | 字段 | 口径 |
 |---|---|
-| `online` | 当前**连接的会话**数（含正在对局 / 大厅 / 空闲；不含已断线等重连的） |
+| `online` | 当前**连接的会话**数（含正在对局 / 大厅 / 闲暇；不含已断线等重连的） |
 | `inMatch` | 坐在**已开局**同盟里的人类数 |
 | `waiting` | 在同盟里但还没开局的人类数 |
-| `inHall` | 在大厅里的人（大厅是可选加入的，只统计加入了的人） |
+| `inHall` | 大厅里的人（大厅是可选加入的，只统计加入了的人） |
 | `spectators` | 观战人数 |
 | `rooms` | 房间数（含未开局） |
 | `matches` | 已开局的房间数 |
@@ -208,7 +208,7 @@ X-Bot-Token: <BOT_TOKEN>          # 二选一，两个都带时以 Authorization
 > `online` 与游戏标题页 / `GET /api/info` 的「在线」**不是一个量**：后者是 `lobby.stats().humans`，
 > 只算**坐在同盟里**的人。同一时刻服务端会有三个数：`/healthz.sessions`（注册表里的会话，含等重连的）、
 > `counts.online`（真正连着 socket 的）、`humans`（在同盟里的）。客户端展示时请把三者分开说
-> （例如「在线 7 人 · 对局中 3 · 空闲 4」），不要拿 `online` 去和标题页的数字对齐。
+> （例如「在线 7 人 · 对局中 3 · 闲暇 4」），不要拿 `online` 去和标题页的数字对齐。
 
 `players[]`：
 
@@ -217,7 +217,7 @@ X-Bot-Token: <BOT_TOKEN>          # 二选一，两个都带时以 Authorization
 | `playerId` | string | 会话 id（游客也会给）。**给机器人用的稳定标识，不要给 IP/重连令牌。** |
 | `account` | string \| null | 登录账号 id（`a_…`），游客为 `null` |
 | `name` | string | 当前昵称 |
-| `state` | string | `match` 对局中 · `waiting` 待开局 · `hall` 在大厅 · `idle` 在线但没进任何地方 |
+| `state` | string | `match` 对局中 · `waiting` 组队中 · `hall` 大厅 · `idle` 闲暇（在线但没进任何地方） |
 | `roomCode` | string \| null | 所在同盟（4 位字母） |
 | `seat` | number \| null | 座位号 |
 | `isHost` | bool | 是否房主 |
@@ -231,7 +231,7 @@ X-Bot-Token: <BOT_TOKEN>          # 二选一，两个都带时以 Authorization
 
 - 内存直读，**不要**在请求里扫盘或算重活；建议整个响应 < 20 KB。
 - `players` 上限 200、`matches` 上限 50（超出截断，并给 `"truncated": true`）。
-- 顺序：按 `state`（对局中 → 待开局 → 大厅 → 空闲）、再按 `joinedAt` 升序。
+- 顺序：按 `state`（对局中 → 组队中 → 大厅 → 闲暇）、再按 `joinedAt` 升序。
 
 ---
 

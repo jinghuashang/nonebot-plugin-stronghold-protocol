@@ -68,10 +68,25 @@ def test_status_view_groups_by_state():
     )
     view = views.status_view(status, limit=10, tz=TZ)
     assert view["kind"] == "status"
-    assert [g["label"] for g in view["groups"]] == ["对局中", "待开局", "空闲"]
+    assert [g["label"] for g in view["groups"]] == ["对局中", "组队中", "闲暇"]
     assert [g["count"] for g in view["groups"]] == [2, 1, 1]
     first = view["groups"][0]["rows"][0]
     assert first["name"] == "阿米娅" and first["is_host"] is True and first["room"] == "ZFNB"
+
+
+def test_status_view_limits_each_group_independently():
+    players = [
+        OnlinePlayer(player_id=f"a_{i}", account=f"a_{i}", name=f"博士{i}", state="match", room_code="AAAA")
+        for i in range(5)
+    ]
+    players.append(OnlinePlayer(player_id="p_9", name="咸鱼", state="idle"))
+    status = ServerStatus(counts=Counts(online=6, in_match=5), players=players)
+
+    view = views.status_view(status, limit=2)
+    assert [g["label"] for g in view["groups"]] == ["对局中", "闲暇"], "人多的组不能把别的状态整组挤掉"
+    assert [len(g["rows"]) for g in view["groups"]] == [2, 1]
+    assert view["groups"][0]["hidden"] == 3 and view["groups"][1]["hidden"] == 0
+    assert view["more"] == 3
 
 
 def test_matches_view_has_progress_and_squad():

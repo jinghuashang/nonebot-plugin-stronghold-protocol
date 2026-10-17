@@ -32,13 +32,10 @@
         </div>
         {% endfor -%}
       </div>
+      {% if g.hidden %}<div class="more">…… 还有 {{ g.hidden }} 人</div>{% endif %}
     </div>
     {% endfor -%}
     {% if not groups %}<div class="empty">现在没有博士在线。</div>{% endif %}
   </div>
 </section>
-
-{% if more -%}
-<div class="more">…… 还有 {{ more }} 人</div>
-{%- endif %}
 {%- endblock -%}

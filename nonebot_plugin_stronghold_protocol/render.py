@@ -149,7 +149,7 @@ def render_online(status: ServerStatus, limit: int = 20, tz: Optional[tzinfo] = 
     counts = status.counts
     lines = [
         f"🛡 卫戍协议 · 在线 {counts.online} 人",
-        f"对局中 {counts.in_match} · 待开局 {counts.waiting} · 大厅 {counts.in_hall} · 观战 {counts.spectators}",
+        f"对局中 {counts.in_match} · 组队中 {counts.waiting} · 大厅 {counts.in_hall} · 观战 {counts.spectators}",
         SEP,
     ]
     if status.maintenance.active:

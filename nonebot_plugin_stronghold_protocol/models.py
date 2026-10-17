@@ -175,9 +175,9 @@ class TitleBoard:
 #: 玩家状态 → 中文。
 PLAYER_STATES: Dict[str, str] = {
     "match": "对局中",
-    "waiting": "待开局",
+    "waiting": "组队中",
     "hall": "大厅",
-    "idle": "空闲",
+    "idle": "闲暇",
 }
 
 
@@ -199,7 +199,7 @@ class OnlinePlayer:
 
     @property
     def state_label(self) -> str:
-        return PLAYER_STATES.get(self.state, self.state or "空闲")
+        return PLAYER_STATES.get(self.state, self.state or "闲暇")
 
     @staticmethod
     def from_json(v: Any) -> "OnlinePlayer":

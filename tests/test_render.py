@@ -69,7 +69,7 @@ def test_render_online():
     text = render_online(status, limit=20, tz=TZ)
     assert "在线 2 人" in text
     assert "1. 阿米娅 · 对局中 · 同盟 YFAF（房主） · HARD" in text
-    assert "2. 游客 · 空闲" in text
+    assert "2. 游客 · 闲暇" in text
 
 
 def test_render_online_truncates_and_flags_maintenance():

@@ -224,10 +224,11 @@ body {
   border: 1px solid var(--line);
   border-top: none;
   background: var(--bg-2);
+  padding: 6px 0;
 }
 
 .section-pad {
-  padding: 12px 14px;
+  padding: 12px 16px;
 }
 
 .empty {
@@ -282,15 +283,23 @@ body {
 /* ---- 名册（/在线）：按状态分组，单列，行间留白 --------------------------------------------- */
 
 .group {
-  margin-top: 18px;
+  margin-top: 0;
+}
+
+.group + .group {
+  margin-top: 10px;
 }
 
 .group-head {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding-bottom: 7px;
+  padding: 10px 16px 8px;
   border-bottom: 1px solid var(--line);
+}
+
+.group .more {
+  padding: 6px 16px 2px;
 }
 
 .group-head .dot {
@@ -341,7 +350,6 @@ body {
 .roster {
   display: flex;
   flex-direction: column;
-  margin-top: 4px;
 }
 
 .roster .row {
@@ -349,7 +357,7 @@ body {
   grid-template-columns: 30px minmax(0, 1fr) 94px 74px 76px;
   column-gap: 14px;
   align-items: baseline;
-  padding: 7px 2px;
+  padding: 7px 16px;
   border-bottom: 1px solid rgba(47, 58, 53, 0.55);
 }
 
@@ -412,7 +420,7 @@ body {
 /* ---- 战况（/对局）：每房一块 + 回合进度条 --------------------------------------------------- */
 
 .match {
-  padding: 14px 14px 12px;
+  padding: 14px 16px 12px;
   border-bottom: 1px solid var(--line);
 }
 

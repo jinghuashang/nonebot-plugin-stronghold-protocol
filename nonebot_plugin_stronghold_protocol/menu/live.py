@@ -71,7 +71,7 @@ class LiveSnapshot:
     def online_line(self) -> str:
         parts = [f"在线 {self.online} 人", f"对局中 {self.in_match}"]
         if self.waiting:
-            parts.append(f"待开局 {self.waiting}")
+            parts.append(f"组队中 {self.waiting}")
         if self.in_hall:
             parts.append(f"大厅 {self.in_hall}")
         if self.spectators:
@@ -118,7 +118,7 @@ class LiveSnapshot:
         """在线部分的结构化格子（给模板画 HUD 用）。"""
         items = [LiveItem("在线", f"{self.online} 人"), LiveItem("对局中", str(self.in_match))]
         if self.waiting:
-            items.append(LiveItem("待开局", str(self.waiting)))
+            items.append(LiveItem("组队中", str(self.waiting)))
         if self.in_hall:
             items.append(LiveItem("大厅", str(self.in_hall)))
         if self.spectators:

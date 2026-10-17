@@ -35,10 +35,10 @@ WIDTH = 750
 #: 名册分组的顺序与标题（状态 → 中文）。
 ROSTER_GROUPS = [
     ("match", "对局中"),
-    ("waiting", "待开局"),
+    ("waiting", "组队中"),
     ("spectating", "观战中"),
-    ("hall", "在大厅"),
-    ("idle", "空闲"),
+    ("hall", "大厅"),
+    ("idle", "闲暇"),
 ]
 
 
@@ -58,22 +58,26 @@ def status_view(status: ServerStatus, limit: int = 20, tz: Optional[tzinfo] = No
     counts = status.counts
     chips = [("在线", str(counts.online), "num"), ("对局中", str(counts.in_match), "num")]
     if counts.waiting:
-        chips.append(("待开局", str(counts.waiting), "num"))
+        chips.append(("组队中", str(counts.waiting), "num"))
     if counts.in_hall:
         chips.append(("大厅", str(counts.in_hall), "num"))
     if counts.spectators:
         chips.append(("观战", str(counts.spectators), "num"))
 
-    players = status.players if limit <= 0 else status.players[:limit]
+    # 上限按「每组」算：先分组再截断，否则人多的组会把其他状态整组挤掉。
     groups: List[Dict[str, Any]] = []
+    hidden = 0
     for key, label in ROSTER_GROUPS:
-        members = [p for p in players if ("spectating" if p.spectating else p.state) == key]
+        members = [p for p in status.players if ("spectating" if p.spectating else p.state) == key]
         if not members:
             continue
+        shown = members if limit <= 0 else members[:limit]
+        hidden += len(members) - len(shown)
         groups.append({
             "key": key,
             "label": label,
             "count": len(members),
+            "hidden": len(members) - len(shown),
             "rows": [
                 {
                     "name": p.name,
@@ -82,7 +86,7 @@ def status_view(status: ServerStatus, limit: int = 20, tz: Optional[tzinfo] = No
                     "difficulty": p.difficulty or "",
                     "since": fmt_time(p.joined_at, tz, "%H:%M"),
                 }
-                for p in members
+                for p in shown
             ],
         })
     return {
@@ -103,7 +107,7 @@ def status_view(status: ServerStatus, limit: int = 20, tz: Optional[tzinfo] = No
         },
         "chips": chips,
         "groups": groups,
-        "more": max(0, len(status.players) - len(players)),
+        "more": hidden,
         "maintenance": status.maintenance.reason if status.maintenance.active else None,
     }
 
