@@ -253,3 +253,17 @@ async def test_image_switch_disables_rendering(monkeypatch):
         assert called == [], "关掉开关就不该进渲染"
     finally:
         runtime.set_service(previous)
+
+
+def test_unite_board_kind_and_kills_render():
+    board = TitleBoard.from_json({
+        "id": "unite", "name": "兜底之王", "kind": "unite",
+        "holders": [{"playerId": "a_1", "name": "阿米娅", "kills": 9, "best": 4, "matches": 2}],
+    })
+    assert board.kind == "unite"
+    report = DailyReport(date="2026-10-20", summary=DailySummary(matches=1, victories=1),
+                         titles={"unite": board})
+    view = views.daily_view(report, tz=TZ)
+    unite = next(b for b in view["boards"] if b["id"] == "unite")
+    assert unite["name"] == "兜底之王" and unite["accent"] == "teal"
+    assert unite["texts"] == ["阿米娅 9 击退（单局最多 4）"]

@@ -271,7 +271,11 @@ def _board_lines(board: Optional[TitleBoard], max_holders: int = 1, title_id: st
     shown = holders if max_holders <= 0 else holders[:max_holders]
     parts: List[str] = []
     for h in shown:
-        if (board and board.kind == "leaks") or h.leaks > 0:
+        if board is not None and board.kind == "unite":
+            piece = f"{h.name} {h.kills} 击退"
+            if h.best:
+                piece += f"（单局最多 {h.best}）"
+        elif (board and board.kind == "leaks") or h.leaks > 0:
             piece = f"{h.name} {h.leaks} 只"
             if h.best:
                 piece += f"（单局最多 {h.best}）"

@@ -395,6 +395,7 @@ X-Bot-Token: <BOT_TOKEN>          # 二选一，两个都带时以 Authorization
 | `comment_6` | 挥金如土 | `stats.gold`（本局消耗资金）最高 | `data/config.json` `titles[5]`；`results.js` 里 `fundsSpent = ps.stats.gold` |
 | `comment_4` | 精英云集 | `stats.merges`（晋升精锐次数）最高 | `data/config.json` `titles[3]` |
 | `worst` | 卫戍之区 | 漏怪最多（**不是官方称号，是社群口径**，可只按 `stats.leaks` 聚合） | 上游没有，等价于「`Σ leaks` 最高的玩家」 |
+| `unite` | 兜底之王 | 联合防守（联防）里自己单位击退的敌人最多（**社群口径**，按 `Σ stats.uniteKills` 聚合，单局最多记 `best`） | `results.js` 的 `stats.uniteKills`（`settle.js` 按击杀归属记账；只有真正跑过的联防才计） |
 
 规则（上游 `assignTitles` 已保证）：每人每局最多 1 个称号；每个称号每局最多给 1 人。
 所以「卫戍之星 count = 2」= 这个账号**有 2 局**被评上卫戍之星。

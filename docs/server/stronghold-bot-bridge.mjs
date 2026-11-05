@@ -87,13 +87,14 @@ function readJson(file) {
 }
 
 /** 一个称号榜的内存态：id → 每个 holder 的聚合。 */
-const BOARD_IDS = ['comment_1', 'comment_3', 'comment_6', 'comment_4', 'worst'];
+const BOARD_IDS = ['comment_1', 'comment_3', 'comment_6', 'comment_4', 'worst', 'unite'];
 const BOARD_META = {
   comment_1: { name: '卫戍之星', note: '对敌方领袖造成伤害最高（仅胜利时）', kind: 'title' },
   comment_3: { name: '坚若磐石', note: '目标生命值损失最少', kind: 'title' },
   comment_6: { name: '挥金如土', note: '消耗资金最多', kind: 'title' },
   comment_4: { name: '精英云集', note: '晋升精锐次数最多', kind: 'title' },
   worst: { name: '卫戍之区', note: '漏怪最多', kind: 'leaks' },
+  unite: { name: '兜底之王', note: '联合防守中击退敌人最多', kind: 'unite' },
 };
 
 /**
@@ -241,7 +242,7 @@ export function createBotBridge({
 
   /** 一个 holder 行的空值（称号榜与漏怪榜共用字段并集，与上游 leaderboard.json 同风格）。 */
   const emptyHolder = (playerId, name) => ({
-    playerId, name, count: 0, victories: 0, bestRounds: 0, leaks: 0, best: 0, matches: 0, lastAt: 0,
+    playerId, name, count: 0, victories: 0, bestRounds: 0, leaks: 0, best: 0, kills: 0, matches: 0, lastAt: 0,
   });
 
   const holderOf = (board, playerId, name) => {
@@ -253,9 +254,10 @@ export function createBotBridge({
 
   /** 一个榜的排序行（称号按 count，漏怪按 leaks；并列按 lastAt 新在前）。 */
   function rank(board, id) {
-    const isLeaks = BOARD_META[id]?.kind === 'leaks';
-    const rows = [...board.values()].filter((r) => (isLeaks ? r.leaks > 0 : r.count > 0));
-    rows.sort((a, b) => (isLeaks ? b.leaks - a.leaks : b.count - a.count) || b.lastAt - a.lastAt
+    const kind = BOARD_META[id]?.kind;
+    const metric = (r) => (kind === 'leaks' ? r.leaks : kind === 'unite' ? r.kills : r.count);
+    const rows = [...board.values()].filter((r) => metric(r) > 0);
+    rows.sort((a, b) => metric(b) - metric(a) || b.lastAt - a.lastAt
       || (a.playerId < b.playerId ? -1 : 1));
     return rows.map((r, i) => ({ rank: i + 1, ...r }));
   }
@@ -309,6 +311,7 @@ export function createBotBridge({
 
     for (const id2 of BOARD_IDS) if (!day.boards.has(id2)) day.boards.set(id2, new Map());
     const worst = day.boards.get('worst');
+    const unite = day.boards.get('unite');
 
     const rows = [];
     for (const p of players) {
@@ -316,6 +319,7 @@ export function createBotBridge({
       const stats = p.stats || {};
       const goldSpent = Number.isFinite(stats.gold) ? Math.max(0, Math.round(stats.gold)) : 0;
       const leaks = Number.isFinite(stats.leaks) ? Math.max(0, Math.round(stats.leaks)) : 0;
+      const uniteKills = Number.isFinite(stats.uniteKills) ? Math.max(0, Math.round(stats.uniteKills)) : 0;
       const titleId = typeof p.title?.id === 'string' ? p.title.id : null;
       rows.push({
         playerId: typeof p.playerId === 'string' ? p.playerId : null,
@@ -332,12 +336,13 @@ export function createBotBridge({
       if (!isAccount) continue;
       const name = typeof p.name === 'string' && p.name ? p.name : p.playerId;
 
-      const dp = day.players.get(p.playerId) ?? { name, matches: 0, victories: 0, goldSpent: 0, leaks: 0, bestRounds: 0, titles: {}, firstAt: at, lastAt: at };
+      const dp = day.players.get(p.playerId) ?? { name, matches: 0, victories: 0, goldSpent: 0, leaks: 0, bestRounds: 0, uniteKills: 0, titles: {}, firstAt: at, lastAt: at };
       dp.name = name;
       dp.matches += 1;
       if (p.victory) dp.victories += 1;
       dp.goldSpent += goldSpent;
       dp.leaks += leaks;
+      dp.uniteKills += uniteKills;
       if (Number.isFinite(p.roundsPassed)) dp.bestRounds = Math.max(dp.bestRounds, Math.round(p.roundsPassed));
       dp.lastAt = at;
       if (titleId) dp.titles[titleId] = (dp.titles[titleId] || 0) + 1;
@@ -356,12 +361,20 @@ export function createBotBridge({
       w.matches += 1;
       w.lastAt = at;
 
+      // 兜底之王：联防里自己单位击退的敌人数（stats.uniteKills），和漏怪榜一样只记登录账号
+      const u = holderOf(unite, p.playerId, name);
+      u.kills += uniteKills;
+      u.best = Math.max(u.best, uniteKills);
+      u.matches += 1;
+      u.lastAt = at;
+
       const tp = totals.get(p.playerId) ?? { name, matches: 0, victories: 0, goldSpent: 0, leaks: 0, bestRounds: 0, titles: {}, firstAt: at, lastAt: at };
       tp.name = name;
       tp.matches += 1;
       if (p.victory) tp.victories += 1;
       tp.goldSpent += goldSpent;
       tp.leaks += leaks;
+      tp.uniteKills += uniteKills;
       if (Number.isFinite(p.roundsPassed)) tp.bestRounds = Math.max(tp.bestRounds, Math.round(p.roundsPassed));
       tp.lastAt = at;
       if (titleId) tp.titles[titleId] = (tp.titles[titleId] || 0) + 1;

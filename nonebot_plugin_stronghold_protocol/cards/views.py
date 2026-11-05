@@ -227,7 +227,11 @@ def _board_block(title_id: str, board: Optional[TitleBoard], max_holders: int) -
     shown = holders if max_holders <= 0 else holders[:max_holders]
     texts = []
     for h in shown:
-        if (board and board.kind == "leaks") or h.leaks > 0:
+        if board is not None and board.kind == "unite":
+            piece = f"{h.name} {h.kills} 击退"
+            if h.best:
+                piece += f"（单局最多 {h.best}）"
+        elif (board and board.kind == "leaks") or h.leaks > 0:
             piece = f"{h.name} {h.leaks} 只"
             if h.best:
                 piece += f"（单局最多 {h.best}）"

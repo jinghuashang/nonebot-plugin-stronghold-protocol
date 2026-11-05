@@ -778,6 +778,10 @@ table.grid .lose {
   --acc: var(--mint-500);
 }
 
+.acc-teal {
+  --acc: var(--mint-400);
+}
+
 .acc-red {
   --acc: var(--red);
 }

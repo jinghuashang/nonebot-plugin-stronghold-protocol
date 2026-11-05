@@ -117,6 +117,7 @@ def _merge_titles(reports: List[DailyReport]) -> Dict[str, TitleBoard]:
                 row.count += holder.count
                 row.victories += holder.victories
                 row.leaks += holder.leaks
+                row.kills += holder.kills
                 row.matches += holder.matches
                 row.best = max(row.best, holder.best)
                 row.best_rounds = max(row.best_rounds, holder.best_rounds)
@@ -128,6 +129,8 @@ def _merge_titles(reports: List[DailyReport]) -> Dict[str, TitleBoard]:
         holders = list(rows[key].values())
         if board.kind == "leaks":
             holders.sort(key=lambda h: (h.leaks, h.best, h.name), reverse=True)
+        elif board.kind == "unite":
+            holders.sort(key=lambda h: (h.kills, h.best, h.name), reverse=True)
         else:
             holders.sort(key=lambda h: (h.count, h.best_rounds, h.name), reverse=True)
         board.holders = holders

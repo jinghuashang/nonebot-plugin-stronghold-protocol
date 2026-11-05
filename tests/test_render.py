@@ -183,7 +183,7 @@ def test_render_daily_empty_day():
     text = render_daily(report, tz=TZ)
     assert "今天还没有对局记录呢" in text
     # 没有榜单数据时也要把五个称号位留出来，避免「今天没这条」变成「机器人坏了」
-    assert text.count("今日无人获得") == 5
+    assert text.count("今日无人获得") == 6, "五个称号榜 + 兜底之王"
 
 
 def test_render_daily_uses_builtin_names_when_server_sends_none():
@@ -213,3 +213,16 @@ def test_render_daily_names_the_other_boards_even_when_the_server_sends_only_one
     assert "🏆 坚若磐石（目标生命值损失最少）" in text
     assert "🏆 卫戍之区（漏怪最多）" in text
     assert "未知称号" not in text
+
+
+def test_render_daily_unite_board_shows_kills():
+    holders = [
+        TitleHolder(player_id="a_1", name="阿米娅", kills=12, best=5),
+        TitleHolder(player_id="a_2", name="凯尔希", kills=7, best=3),
+    ]
+    report = DailyReport(date="2026-10-20", summary=DailySummary(matches=1, finished=1, victories=1),
+                         titles={"unite": TitleBoard(id="unite", name="兜底之王", kind="unite", holders=holders)})
+    text = render_daily(report, max_titles=1, tz=TZ)
+    assert "兜底之王" in text
+    assert "阿米娅 12 击退（单局最多 5）" in text
+    assert "凯尔希" not in text, "默认只列第一"

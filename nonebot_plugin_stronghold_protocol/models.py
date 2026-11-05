@@ -62,10 +62,11 @@ TITLE_INFO: Dict[str, tuple] = {
     "comment_6": ("挥金如土", "消耗资金最多"),
     "comment_4": ("精英云集", "晋升精锐次数最多"),
     "worst": ("卫戍之区", "漏怪最多"),
+    "unite": ("兜底之王", "联合防守中击退敌人最多"),
 }
 
 #: 日报按这个顺序列称号。
-TITLE_ORDER: List[str] = ["comment_1", "comment_3", "comment_6", "comment_4", "worst"]
+TITLE_ORDER: List[str] = ["comment_1", "comment_3", "comment_6", "comment_4", "worst", "unite"]
 
 #: board id → 中文名（服务端没给 name 时兜底；服务的 ``worst`` 从来没有官方名）。
 TITLE_NAMES: Dict[str, str] = {k: v[0] for k, v in TITLE_INFO.items()}
@@ -78,6 +79,7 @@ TITLE_ACCENTS: Dict[str, str] = {
     "comment_6": "amber",
     "comment_4": "mint",
     "worst": "red",
+    "unite": "teal",
 }
 
 #: 游戏全部六个结算称号（`data/config.json` 的 `titles[]`）：其中四个是榜，`comment_2` / `comment_5`
@@ -95,6 +97,7 @@ OFFICIAL_TITLE_NAMES: Dict[str, str] = {
 ALL_TITLE_NAMES: Dict[str, str] = {
     **OFFICIAL_TITLE_NAMES,
     "worst": TITLE_INFO["worst"][0],
+    "unite": TITLE_INFO["unite"][0],
 }
 
 
@@ -113,6 +116,8 @@ class TitleHolder:
     #: 漏怪榜：累计漏怪 / 单局最多漏怪
     leaks: int = 0
     best: int = 0
+    #: 兜底之王：联防里自己单位击退的敌人数
+    kills: int = 0
     #: 漏怪榜：被计入的局数
     matches: int = 0
     last_at: int = 0
@@ -128,6 +133,7 @@ class TitleHolder:
             best_rounds=as_int(d.get("bestRounds")),
             leaks=as_int(d.get("leaks")),
             best=as_int(d.get("best")),
+            kills=as_int(d.get("kills")),
             matches=as_int(d.get("matches")),
             last_at=as_int(d.get("lastAt")),
         )
@@ -159,7 +165,7 @@ class TitleBoard:
         board_id = as_str(d.get("id"))
         holders = [TitleHolder.from_json(x) for x in as_list(d.get("holders"))]
         # `worst`（卫戍之区）本来就是漏怪口径：服务端没给 kind 时按 id 推，免得渲染按称号行去排版
-        default_kind = "leaks" if board_id == "worst" else "title"
+        default_kind = "leaks" if board_id == "worst" else ("unite" if board_id == "unite" else "title")
         return TitleBoard(
             id=board_id,
             name=as_str(d.get("name")),

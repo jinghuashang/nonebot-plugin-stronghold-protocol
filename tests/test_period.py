@@ -122,3 +122,21 @@ def test_date_range_text():
     assert date_range_text(date(2026, 10, 17), date(2026, 10, 17)) == "2026-10-17"
     assert date_range_text(date(2026, 10, 11), date(2026, 10, 17)) == "10-11 ~ 10-17"
     assert date_range_text(date(2026, 9, 28), date(2026, 10, 4)) == "2026-09-28 ~ 2026-10-04"
+
+
+async def test_period_merges_unite_kills():
+    def board(holders):
+        return TitleBoard(id="unite", name="兜底之王", kind="unite", holders=holders)
+
+    d1 = make_day(date(2026, 10, 19), matches=1, victories=1, gold=0, leaks=0, titles={
+        "unite": board([TitleHolder(player_id="a_1", name="阿米娅", kills=4, best=4)]),
+    })
+    d2 = make_day(date(2026, 10, 20), matches=1, victories=1, gold=0, leaks=0, titles={
+        "unite": board([TitleHolder(player_id="a_1", name="阿米娅", kills=6, best=6),
+                        TitleHolder(player_id="a_2", name="凯尔希", kills=2, best=2)]),
+    })
+    days = {date(2026, 10, 19): d1, date(2026, 10, 20): d2}
+    report = await period_report(lambda day: _fetch(days, day), 2, end=date(2026, 10, 20))
+    unite = report.board("unite")
+    assert [h.name for h in unite.holders] == ["阿米娅", "凯尔希"], "按累计击退排序"
+    assert unite.holders[0].kills == 10 and unite.holders[0].best == 6
