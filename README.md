@@ -155,6 +155,9 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 | `stronghold_report_time` | 否 | `23:00` | 推送时刻（24 小时制） |
 | `stronghold_report_tz` | 否 | `Asia/Shanghai` | 推送时刻和「今日」的日界 |
 | `stronghold_report_groups` | 否 | `[]` | **默认**推送群，如 `["123456789"]`；群里的 `日报 开启` / `日报 关闭` 会覆盖它 |
+| `stronghold_ws_url` | 否 | `""` | 排行榜 WS 地址；留空按 `stronghold_api_base` 推导（https→wss，追加 `/ws`） |
+| `stronghold_unite_leaderboard` | 否 | `true` | 日报缺「兜底之王」时，直接读服务器自带的累计榜（只读） |
+| `stronghold_leaderboard_cache` | 否 | `300` | 排行榜缓存秒数（一次读榜会占一个游戏会话） |
 | `stronghold_admins` | 否 | `[]` | 插件管理员（能开关群推送），如 `["10001"]`；NoneBot 的 `SUPERUSERS` 天然也是管理员 |
 | `stronghold_report_max_titles` | 否 | `1` | 每个称号列前几人（默认只列第一），`0` 是全列 |
 | `stronghold_reply_image` | 否 | `true` | 命令回复与日报推送出图（需要 htmlrender；失败自动回退文本） |
@@ -201,7 +204,7 @@ _✨ 卫戍协议：盟约 自建服的 QQ 伴侣 ✨_
 | `在线` | 在线名册：状态分组 + 编号条目，同盟 / 难度 / 上线时间各成一列对齐 |
 | `对局` | 战况面板：编号房间 + **回合进度条** + 参战博士与 LP + AI 数量 |
 | `战绩` | 个人档案：今日 / 累计双面板 + 称号 + 最近对局表 |
-| `日报` | 日报海报：今日概览 KPI 一行五个 + 称号榜（每项独立配色） |
+| `日报` | 日报海报：今日概览 KPI 一行五个 + 称号榜（每项独立配色；「兜底之王」缺当日数据时用服务器累计榜，标注「累计」） |
 
 绑定流程、用法提示、报错走一张通用提示卡。卡片里的图标是内联 SVG，不依赖 emoji 字体；但玩家昵称里可能带 emoji —— 想让它们正常显示，在渲染环境里装一份 Noto Color Emoji 即可。
 

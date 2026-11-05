@@ -270,7 +270,7 @@ async def handle_custom_report(event: Event, arg: Message = CommandArg()) -> Non
         )
         return
     try:
-        report = await service.period_daily(days)
+        report = await service.with_unite(await service.period_daily(days))
     except BridgeError as e:
         await _send_error(custom_report_cmd, describe_error(e))
         return
@@ -351,7 +351,7 @@ async def handle_daily(event: Event, arg: Message = CommandArg()) -> None:
                          title="日报")
         return
     try:
-        report = await service.daily(day)
+        report = await service.with_unite(await service.daily(day))
     except BridgeError as e:
         await _send_error(daily_cmd, event, describe_error(e))
         return

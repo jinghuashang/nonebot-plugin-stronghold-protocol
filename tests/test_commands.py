@@ -99,6 +99,7 @@ def plugin_service(tmp_path, bridge_server):
         stronghold_api_token="t",
         stronghold_report_tz="Asia/Shanghai",
         stronghold_report_groups=[GROUP_ID],
+        stronghold_unite_leaderboard=False,
         # 命令测试断言的是文本回退（出图的路径另有专门用例，见文件末尾）
         stronghold_reply_image=False,
     )

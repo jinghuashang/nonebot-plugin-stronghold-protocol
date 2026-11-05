@@ -9,7 +9,8 @@ from zoneinfo import ZoneInfo
 
 from .bridge import BridgeClient, BridgeError
 from .config import Config
-from .models import BindChallenge, BindResult, DailyReport, PlayerProfile, ServerStatus
+from .leaderboard import LeaderboardClient, ws_url_from
+from .models import BindChallenge, BindResult, DailyReport, PlayerProfile, ServerStatus, TitleBoard
 from .period import period_report
 from .storage import Binding, BindingStore, ReportGroupStore, default_data_dir
 
@@ -43,6 +44,12 @@ class StrongholdService:
         self.report_store = report_store or ReportGroupStore(
             (Path(base_dir).parent if base_dir else data_dir) / "report_groups.json"
         )
+        self.leaderboard = LeaderboardClient(
+            config.stronghold_ws_url or ws_url_from(config.stronghold_api_base),
+            timeout=config.stronghold_timeout,
+            cache_seconds=config.stronghold_leaderboard_cache,
+            verify_tls=config.stronghold_verify_tls,
+        )
         self.tz = resolve_tz(config.stronghold_report_tz)
 
     # ---- 在线 ------------------------------------------------------------------------------------
@@ -66,6 +73,22 @@ class StrongholdService:
 
     async def daily(self, day: Optional[date] = None) -> DailyReport:
         return await self.client.daily(day)
+
+    async def unite_board(self) -> Optional[TitleBoard]:
+        """服务器排行榜里的「兜底之王」（累计口径）；关了开关/读不到都返回 None。"""
+        if not self.config.stronghold_unite_leaderboard:
+            return None
+        return await self.leaderboard.unite()
+
+    async def with_unite(self, report: DailyReport) -> DailyReport:
+        """卡片展示前补「兜底之王」：桥接给了当天的榜就用当天的，没给才读服务器累计榜。"""
+        board = report.titles.get("unite")
+        if board is not None and board.holders:
+            return report
+        board = await self.unite_board()
+        if board is not None:
+            report.titles["unite"] = board
+        return report
 
     async def period_daily(self, days: int, end: Optional[date] = None) -> DailyReport:
         """区间战报：把最近 ``days`` 天（含今天）的日报聚合在一起。"""

@@ -54,6 +54,12 @@ class Config(BaseModel):
     stronghold_report_max_titles: int = 1
     #: 插件自己的管理员（能开关群日报推送）。NoneBot 的 SUPERUSERS 天然也是管理员。
     stronghold_admins: List[int] = Field(default_factory=list)
+    #: 排行榜 WebSocket 地址；留空 = 由 stronghold_api_base 推导（https→wss，追加 /ws）。
+    stronghold_ws_url: str = ""
+    #: 日报里补「兜底之王」：桥接没给 unite 榜时，直接读服务器自带的累计榜（只读，不改服务端）。
+    stronghold_unite_leaderboard: bool = True
+    #: 排行榜缓存秒数：一次读榜会占一个游戏会话，别太频繁。
+    stronghold_leaderboard_cache: float = 300.0
 
     # ---- 图片菜单（可选：装了 nonebot-plugin-picmenu-next 才生效）-------------------------------
     #: 菜单里显示的服务器名（首页标题、页脚）。

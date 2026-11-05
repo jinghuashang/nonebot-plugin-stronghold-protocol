@@ -163,3 +163,25 @@ async def test_daily_passes_the_day(tmp_path):
     report = await service.daily(date(2026, 10, 1))
     assert report.date == "2026-10-01"
     assert service.client.calls[-1] == ("daily", date(2026, 10, 1))
+
+
+async def test_with_unite_injects_cumulative_board_only_when_missing(tmp_path):
+    from nonebot_plugin_stronghold_protocol.models import DailyReport, DailySummary, TitleBoard, TitleHolder
+
+    service = StrongholdService(Config(stronghold_unite_leaderboard=False), store=BindingStore(tmp_path / "b.json"))
+    cumulative = TitleBoard(id="unite", name="兜底之王", kind="unite",
+                            holders=[TitleHolder(player_id="a_1", name="阿米娅", kills=17, best=9)])
+
+    async def fake_unite():
+        return cumulative
+
+    service.unite_board = fake_unite  # type: ignore[assignment]
+    report = DailyReport(date="2026-11-05", summary=DailySummary(matches=1, victories=1))
+    got = await service.with_unite(report)
+    assert got.titles["unite"].holders[0].kills == 17
+
+    daily = DailyReport(date="2026-11-05", summary=DailySummary(matches=1, victories=1),
+                        titles={"unite": TitleBoard(id="unite", kind="unite", name="兜底之王",
+                                                    holders=[TitleHolder(name="当天", kills=3)])})
+    again = await service.with_unite(daily)
+    assert again.titles["unite"].holders[0].name == "当天", "桥接给了当天的榜就不覆盖"

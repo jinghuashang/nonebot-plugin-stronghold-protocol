@@ -22,6 +22,7 @@ TZ = ZoneInfo("Asia/Shanghai")
 
 class StubService(StrongholdService):
     def __init__(self, tmp_path, **cfg):
+        cfg.setdefault("stronghold_unite_leaderboard", False)
         super().__init__(Config(**cfg), store=BindingStore(tmp_path / "bindings.json"))
         self.daily_calls = 0
         self.error = None

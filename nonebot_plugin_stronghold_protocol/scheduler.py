@@ -148,7 +148,7 @@ class DailyReportScheduler(_SchedulerBase):
             logger.info("[stronghold] 没有订阅日报的群，跳过本次推送")
             return results
         try:
-            report = await self.service.daily()
+            report = await self.service.with_unite(await self.service.daily())
         except BridgeError as e:
             logger.error(f"[stronghold] 日报取数失败：{describe_error(e)}")
             return ["取数失败"]
@@ -181,7 +181,7 @@ class _PeriodScheduler(_SchedulerBase):
             logger.info(f"[stronghold] 没有订阅{self.label}的群，跳过本次推送")
             return []
         try:
-            report = await self.service.period_daily(days)
+            report = await self.service.with_unite(await self.service.period_daily(days))
         except BridgeError as e:
             logger.error(f"[stronghold] {self.label}取数失败：{describe_error(e)}")
             return ["取数失败"]
