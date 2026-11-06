@@ -61,6 +61,16 @@ class Config(BaseModel):
     #: 排行榜缓存秒数：一次读榜会占一个游戏会话，别太频繁。
     stronghold_leaderboard_cache: float = 300.0
 
+    # ---- 群聊管理（入群验证 / 禁言 / 踢出 / 撤回）------------------------------------------------
+    #: 群管白名单：只有这些群做入群验证、响应群管命令（踢人这类动作必须显式授权到群）。
+    stronghold_manage_groups: List[int] = Field(default_factory=list)
+    #: 新成员入群验证（算术题）；关掉就只保留群管命令。
+    stronghold_verify_enabled: bool = True
+    #: 答题时限（秒）：超时或答错 3 次移出群聊。
+    stronghold_verify_timeout: int = 300
+    #: 验证期间先禁言（机器人需要是本群管理员）。
+    stronghold_verify_mute: bool = True
+
     # ---- 图片菜单（可选：装了 nonebot-plugin-picmenu-next 才生效）-------------------------------
     #: 菜单里显示的服务器名（首页标题、页脚）。
     stronghold_menu_server_name: str = "卫戍协议：盟约"

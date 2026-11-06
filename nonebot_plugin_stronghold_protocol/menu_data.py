@@ -103,6 +103,26 @@ MENU_DATA: List[Dict[str, Any]] = [
         ),
     },
     {
+        "func": "入群验证",
+        "trigger_method": "自动：新成员进群时",
+        "trigger_condition": "群在 `stronghold_manage_groups` 白名单里",
+        "brief_des": "给新成员出一道算术题，答对通过；超时或答错 3 次移出群聊",
+        "detail_des": (
+            "验证期间默认先禁言（机器人要是群管理员）。时限 `stronghold_verify_timeout` 秒，默认 300。\n\n"
+            "只对白名单群生效 —— 机器人进了很多群，验证与踢人必须授权到具体群。"
+        ),
+    },
+    {
+        "func": "群聊管理",
+        "trigger_method": f"`{_P}禁言 @人 [分钟]` / `{_P}解禁 @人` / `{_P}踢出 @人 [拉黑]` / `{_P}撤回`（回复消息）",
+        "trigger_condition": "白名单群 + 机器人管理员或群管理员/群主",
+        "brief_des": "禁言、解禁、踢人（可拉黑）、撤回消息",
+        "detail_des": (
+            "禁言默认 10 分钟，最长 30 天；踢人加「拉黑」会拒绝对方再次加群；撤回用回复目标消息的方式。\n\n"
+            "机器人在群里需要是管理员，否则禁言/踢人/撤回都会被 QQ 拒绝。"
+        ),
+    },
+    {
         "func": "自定义战报",
         "trigger_method": _method("战报", ("自定义战报",)) + " &lt;天数&gt;（1–90，例如 `战报 3`）",
         "trigger_condition": "任何时候都可以查",

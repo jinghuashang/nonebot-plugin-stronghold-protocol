@@ -80,7 +80,7 @@ async def _stronghold_shutdown() -> None:
         await scheduler.stop()
 
 
-from . import commands  # noqa: E402,F401  —— 导入即注册命令（必须在 set_service 之后）
+from . import commands, guard  # noqa: E402,F401  —— 导入即注册命令 / 入群验证与群管
 
 # 可选的图片菜单（nonebot-plugin-picmenu-next）：装了就注册 stronghold 模板与实时数据 mixin，
 # 没装/加载失败就只是一条 debug 日志 —— 插件本体照常工作。

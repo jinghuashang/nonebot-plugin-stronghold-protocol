@@ -7,7 +7,15 @@ from urllib.parse import quote
 
 import nonebot
 import pytest
-from nonebot.adapters.onebot.v11 import Adapter, Bot, GroupMessageEvent, Message, MessageSegment, PrivateMessageEvent
+from nonebot.adapters.onebot.v11 import (
+    Adapter,
+    Bot,
+    GroupIncreaseNoticeEvent,
+    GroupMessageEvent,
+    Message,
+    MessageSegment,
+    PrivateMessageEvent,
+)
 from nonebot.exception import StopPropagation
 from nonebot.matcher import matchers
 from nonebot.message import check_and_run_matcher
@@ -62,16 +70,42 @@ def private_event(text: str, user_id: int = 10001) -> PrivateMessageEvent:
     })
 
 
-def group_event(text: str, user_id: int = 10001, mentions: tuple = ()) -> GroupMessageEvent:
+def group_event(text: str, user_id: int = 10001, mentions: tuple = (), role: str = "member",
+                reply_id: int = 0, group_id: int = GROUP_ID) -> GroupMessageEvent:
     # 真实输入是「/战绩 @某人」：命令文本在前，@ 在后
     segments = [{"type": "text", "data": {"text": text}}]
     segments.extend({"type": "at", "data": {"qq": str(qq)}} for qq in mentions)
+    if reply_id:
+        segments.insert(0, {"type": "reply", "data": {"id": str(reply_id)}})
     return GroupMessageEvent.model_validate({
         "time": 1791811511, "self_id": 12345, "post_type": "message", "message_type": "group",
-        "sub_type": "normal", "message_id": 1, "group_id": GROUP_ID, "user_id": user_id,
+        "sub_type": "normal", "message_id": 1, "group_id": group_id, "user_id": user_id,
         "message": segments, "raw_message": text, "font": 0,
-        "sender": {"user_id": user_id, "nickname": "测试博士", "role": "member"},
+        "sender": {"user_id": user_id, "nickname": "测试博士", "role": role},
     })
+
+
+def join_notice(user_id: int = 20001, group_id: int = GROUP_ID, sub_type: str = "approve") -> GroupIncreaseNoticeEvent:
+    from nonebot.adapters.onebot.v11 import GroupIncreaseNoticeEvent
+
+    return GroupIncreaseNoticeEvent.model_validate({
+        "time": 1791811511, "self_id": 12345, "post_type": "notice",
+        "notice_type": "group_increase", "sub_type": sub_type,
+        "group_id": group_id, "user_id": user_id, "operator_id": 0,
+    })
+
+
+async def dispatch_notice(bot: Recorder, event) -> None:
+    """分发一条通知事件（只跑 notice 类型的 matcher）。"""
+    state: dict = {}
+    try:
+        for group in matchers.values():
+            for cls in group:
+                if getattr(cls, "type", "message") != "notice":
+                    continue
+                await check_and_run_matcher(cls, bot, event, state, None, None)
+    except StopPropagation:
+        return
 
 
 async def dispatch(bot: Recorder, event) -> None:
@@ -118,7 +152,7 @@ async def test_plugin_registers_every_command():
         for cls in group
         if getattr(getattr(cls, "plugin", None), "id_", None) == "nonebot_plugin_stronghold_protocol"
     ]
-    assert len(ours) == 9, "9 条命令都要注册上"
+    assert len(ours) == 15, "9 条战报/绑定命令 + 入群验证 2 条 + 群管 4 条都要注册上"
     loaded = [p for p in nonebot.get_loaded_plugins() if p.metadata and p.metadata.name == "卫戍协议"]
     assert loaded, "插件本身要被 NoneBot 登记为已加载"
     assert loaded[0].metadata.type == "application"
