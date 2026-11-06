@@ -14,8 +14,8 @@ import asyncio
 import random
 import re
 import time
-from dataclasses import dataclass
-from typing import Dict, Optional, Tuple
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Set, Tuple
 
 from nonebot import logger, on_command, on_message, on_notice
 from nonebot.adapters import Event
@@ -56,8 +56,31 @@ class Challenge:
 _pending: Dict[Tuple[int, int], Challenge] = {}
 
 
+@dataclass
+class Probe:
+    """一次「活人检测」：@全体成员，宽限期内没说过话的普通成员踢出。"""
+
+    group_id: int
+    started_at: float
+    deadline: float
+    candidates: List[int] = field(default_factory=list)
+    speakers: Set[int] = field(default_factory=set)
+    task: Optional[asyncio.Task] = None
+
+
+#: group_id → 正在进行的检测。
+_probes: Dict[int, Probe] = {}
+
+
 def pending_count() -> int:
     return len(_pending)
+
+
+def clear_probes() -> None:
+    for probe in _probes.values():
+        if probe.task and not probe.task.done():
+            probe.task.cancel()
+    _probes.clear()
 
 
 def clear_pending() -> None:
@@ -346,3 +369,94 @@ async def handle_recall(bot: Bot, event: GroupMessageEvent) -> None:
         await _say(bot, event.group_id, f"撤回失败：{type(e).__name__}（机器人需要是管理员，且消息未超时）")
         return
     await _say(bot, event.group_id, "🧹 已撤回。")
+
+
+# ---- 活人检测 ---------------------------------------------------------------------------------
+
+def _probe_active(event: Event) -> bool:
+    return isinstance(event, GroupMessageEvent) and int(event.group_id) in _probes
+
+
+probe_listen = on_message(rule=Rule(_probe_active), priority=10, block=False)
+
+
+@probe_listen.handle()
+async def handle_probe_talk(event: GroupMessageEvent) -> None:
+    probe = _probes.get(int(event.group_id))
+    if probe is not None:
+        probe.speakers.add(int(event.user_id))
+
+
+async def _finish_probe(bot: Bot, probe: Probe) -> None:
+    try:
+        await asyncio.sleep(max(0.0, probe.deadline - time.time()))
+    except asyncio.CancelledError:
+        return
+    if _probes.get(probe.group_id) is not probe:
+        return
+    _probes.pop(probe.group_id, None)
+
+    silent = [uid for uid in probe.candidates if uid not in probe.speakers]
+    kicked, failed = 0, 0
+    for uid in silent:
+        try:
+            await bot.set_group_kick(group_id=probe.group_id, user_id=uid, reject_add_request=False)
+            kicked += 1
+        except Exception as e:  # noqa: BLE001 - 没权限/已退群不算失败整体
+            failed += 1
+            logger.warning(f"[stronghold] 活人检测：移出 {uid} 失败：{type(e).__name__}: {e}")
+        await asyncio.sleep(0.4)
+
+    text = f"✅ 活人检测结束：{len(probe.speakers)} 人发言，{kicked} 人未发言已移出群聊。"
+    if failed:
+        text += f"（{failed} 人移出失败，需手动处理）"
+    await _say(bot, probe.group_id, text)
+
+
+alive_cmd = on_command("活人检测", aliases={"全员点名", "点名"}, priority=5, block=True,
+                       rule=Rule(_managed_event))
+
+
+@alive_cmd.handle()
+async def handle_alive_check(bot: Bot, event: GroupMessageEvent, arg: Message = CommandArg()) -> None:
+    if not _is_manager(event):
+        await _say(bot, event.group_id, DENY)
+        return
+    group_id = int(event.group_id)
+    if group_id in _probes:
+        await _say(bot, group_id, "这个群已经有一场活人检测在进行中。")
+        return
+    minutes = min(60, max(1, _minutes(arg.extract_plain_text(), default=10)))
+
+    try:
+        members = await bot.get_group_member_list(group_id=group_id)
+    except Exception as e:  # noqa: BLE001
+        await _say(bot, group_id, f"取群成员列表失败：{type(e).__name__}")
+        return
+
+    now = time.time()
+    candidates = []
+    for m in members or []:
+        uid = int(m.get("user_id") or 0)
+        if not uid or uid == int(event.self_id):
+            continue
+        if str(m.get("role") or "member") != "member":
+            continue  # 群主/管理员不参与
+        if int(m.get("join_time") or 0) > now:
+            continue
+        candidates.append(uid)
+
+    probe = Probe(group_id=group_id, started_at=now, deadline=now + minutes * 60, candidates=candidates)
+    _probes[group_id] = probe
+    probe.task = asyncio.create_task(_finish_probe(bot, probe), name=f"stronghold-probe-{group_id}")
+
+    await bot.send_group_msg(
+        group_id=group_id,
+        message=Message([
+            MessageSegment.at("all"),
+            MessageSegment.text(
+                f"\n【活人检测】请 {minutes} 分钟内在本群随便发一句话（表情、符号、数字都行）。"
+                f"\n{minutes} 分钟内没有任何发言的成员会被移出群聊。"
+            ),
+        ]),
+    )

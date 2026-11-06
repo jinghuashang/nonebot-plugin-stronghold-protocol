@@ -19,8 +19,10 @@ from nonebot_plugin_stronghold_protocol import guard
 @pytest.fixture(autouse=True)
 def _clean_pending():
     guard.clear_pending()
+    guard.clear_probes()
     yield
     guard.clear_pending()
+    guard.clear_probes()
 
 
 @pytest.fixture
@@ -142,3 +144,65 @@ async def test_commands_ignore_groups_outside_whitelist(guarded):
     guarded.config.stronghold_manage_groups = []
     assert guard._managed_event(group_event("/禁言", group_id=GROUP_ID)) is False
     assert guard._managed(999) is False
+
+
+# ---- 活人检测 -----------------------------------------------------------------------------------
+
+def _members():
+    return [
+        {"user_id": 12345, "role": "admin", "join_time": 1},      # 机器人自己（admin）
+        {"user_id": 10001, "role": "owner", "join_time": 1},      # 群主
+        {"user_id": 30001, "role": "member", "join_time": 1},     # 会发言
+        {"user_id": 30002, "role": "member", "join_time": 1},     # 不发言 → 踢
+        {"user_id": 30003, "role": "member", "join_time": 1},     # 不发言 → 踢
+    ]
+
+
+def _patch_members(bot):
+    async def call_api(api, **data):
+        bot.calls.append((api, data))
+        if api == "get_group_member_list":
+            return _members()
+        return {"message_id": 1, "status": "ok", "retcode": 0, "data": {"message_id": 1}}
+
+    bot.call_api = call_api  # type: ignore[method-assign]
+
+
+async def test_alive_check_kicks_silent_members(guarded):
+    bot = make_bot()
+    _patch_members(bot)
+    await dispatch(bot, group_event("/活人检测 1", user_id=10001, role="admin"))
+
+    probe = guard._probes[GROUP_ID]
+    assert probe.candidates == [30001, 30002, 30003], "群主/管理员/机器人不参与"
+    assert "@全体成员" in bot.texts[-1] or "活人检测" in bot.texts[-1]
+
+    with pytest.raises(AssertionError):  # 监听器只记账、不发消息，dispatch 认为「没人接」
+        await dispatch(bot, group_event("我活着", user_id=30001))
+    assert 30001 in probe.speakers
+
+    probe.deadline = 0  # 立刻结算
+    await guard._finish_probe(bot, probe)
+
+    kicked = sorted(c["user_id"] for c in calls(bot, "set_group_kick"))
+    assert kicked == [30002, 30003]
+    assert GROUP_ID not in guard._probes
+    assert "2 人未发言已移出群聊" in bot.texts[-1]
+
+
+async def test_alive_check_requires_manager(guarded):
+    bot = make_bot()
+    _patch_members(bot)
+    await dispatch(bot, group_event("/活人检测", user_id=10001, role="member"))
+    assert "只有机器人管理员或本群管理员" in bot.texts[-1]
+    assert not guard._probes
+
+
+async def test_alive_check_refuses_a_second_run(guarded):
+    bot = make_bot()
+    _patch_members(bot)
+    await dispatch(bot, group_event("/活人检测 1", user_id=10001, role="admin"))
+    bot2 = make_bot()
+    _patch_members(bot2)
+    await dispatch(bot2, group_event("/活人检测 1", user_id=10001, role="admin"))
+    assert "已经有一场活人检测" in bot2.texts[-1]

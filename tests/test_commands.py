@@ -152,7 +152,7 @@ async def test_plugin_registers_every_command():
         for cls in group
         if getattr(getattr(cls, "plugin", None), "id_", None) == "nonebot_plugin_stronghold_protocol"
     ]
-    assert len(ours) == 15, "9 条战报/绑定命令 + 入群验证 2 条 + 群管 4 条都要注册上"
+    assert len(ours) == 17, "9 条战报/绑定 + 入群验证 2 + 群管 4 + 活人检测 2（命令 + 发言监听）"
     loaded = [p for p in nonebot.get_loaded_plugins() if p.metadata and p.metadata.name == "卫戍协议"]
     assert loaded, "插件本身要被 NoneBot 登记为已加载"
     assert loaded[0].metadata.type == "application"
