@@ -31,7 +31,6 @@ def guarded(plugin_service):  # noqa: F811 - 参数即导入的夹具
     plugin_service.config.stronghold_manage_groups = [GROUP_ID]
     plugin_service.config.stronghold_verify_enabled = True
     plugin_service.config.stronghold_verify_timeout = 300
-    plugin_service.config.stronghold_verify_mute = True
     return plugin_service
 
 
@@ -46,14 +45,13 @@ async def test_join_sends_math_question_and_answer_passes(guarded):
     assert (GROUP_ID, 20001) in guard._pending
     sent = bot.texts[-1]
     assert "进群验证" in sent and "？" in sent
-    assert calls(bot, "set_group_ban")[0]["duration"] == 300, "验证期间先禁言"
+    assert not calls(bot, "set_group_ban"), "验证期间不能禁言，否则对方发不出答案"
 
     answer = guard._pending[(GROUP_ID, 20001)].answer
     await dispatch(bot, group_event(str(answer), user_id=20001))
 
     assert (GROUP_ID, 20001) not in guard._pending
-    assert any(c["duration"] == 0 for c in calls(bot, "set_group_ban")), "答对要解禁"
-    assert any(c["user_id"] == 20001 for c in calls(bot, "set_group_ban"))
+    assert not calls(bot, "set_group_ban"), "没禁言过就不该有解禁调用"
     assert "验证通过" in bot.texts[-1]
     assert not calls(bot, "set_group_kick")
 
@@ -84,11 +82,10 @@ async def test_three_wrong_answers_kick(guarded):
 
 async def test_timeout_kick(guarded):
     bot = make_bot()
-    guard._pending[(GROUP_ID, 20004)] = guard.Challenge(answer=3, expires_at=0, muted=True)
+    guard._pending[(GROUP_ID, 20004)] = guard.Challenge(answer=3, expires_at=0)
     await guard._timeout_kick(bot, GROUP_ID, 20004, timeout=0)
     assert (GROUP_ID, 20004) not in guard._pending
     assert calls(bot, "set_group_kick")[0]["user_id"] == 20004
-    assert any(c["duration"] == 0 for c in calls(bot, "set_group_ban")), "超时踢人前也要解禁"
 
 
 async def test_verify_answer_does_not_leak_to_other_members(guarded):

@@ -1,7 +1,7 @@
 """群聊守护：入群验证 + 群管命令（只对白名单群生效）。
 
 - **入群验证**：新成员进群 → 出一道算术题 @ 他 → 答对通过；没在 ``stronghold_verify_timeout``
-  内答对就移出群聊。验证期间默认先禁言，避免机器人在等人答题的同时被刷屏。
+  内答对就移出群聊。**验证期间绝不禁言**（禁言了就发不出答案，等于必踢）。
 - **群管命令**：``禁言 @人 [分钟]`` / ``解禁 @人`` / ``踢出 @人 [拉黑]`` / ``撤回``（回复一条消息）。
   只有白名单群（``stronghold_manage_groups``）里、且操作者是机器人管理员或群管理员/群主时可用。
 
@@ -48,7 +48,6 @@ class Challenge:
     answer: int
     expires_at: float
     attempts: int = 0
-    muted: bool = False
     task: Optional[asyncio.Task] = None
 
 
@@ -179,15 +178,9 @@ async def handle_join(bot: Bot, event: GroupIncreaseNoticeEvent) -> None:
 
     a, b = random.randint(2, 19), random.randint(2, 19)
     answer = a + b
-    muted = False
-    if config.stronghold_verify_mute:
-        try:
-            await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=timeout)
-            muted = True
-        except Exception as e:  # noqa: BLE001 - 机器人不是管理员时禁言不了，继续走验证
-            logger.warning(f"[stronghold] 群 {group_id} 禁言新成员 {user_id} 失败：{type(e).__name__}: {e}")
-
-    challenge = Challenge(answer=answer, expires_at=time.time() + timeout, muted=muted)
+    # 铁律：验证期间**不能禁言** —— 禁言了对方就发不出答案，必然超时被踢。
+    # 防刷屏靠的是「超时/答错 3 次就移出」，以及管理员手动禁言。
+    challenge = Challenge(answer=answer, expires_at=time.time() + timeout)
     _pending[(group_id, user_id)] = challenge
     challenge.task = asyncio.create_task(
         _timeout_kick(bot, group_id, user_id, timeout), name=f"stronghold-verify-{group_id}-{user_id}"
@@ -217,8 +210,6 @@ async def _timeout_kick(bot: Bot, group_id: int, user_id: int, timeout: int) -> 
     if challenge is None:
         return
     await _kick(bot, group_id, user_id, reason="验证超时")
-    if challenge.muted:
-        await _unban(bot, group_id, user_id)
 
 
 async def _kick(bot: Bot, group_id: int, user_id: int, *, reason: str, reject: bool = False) -> bool:
@@ -229,13 +220,6 @@ async def _kick(bot: Bot, group_id: int, user_id: int, *, reason: str, reject: b
         return False
     await _say(bot, group_id, f"⚠️ {user_id} {reason}，已移出群聊。")
     return True
-
-
-async def _unban(bot: Bot, group_id: int, user_id: int) -> None:
-    try:
-        await bot.set_group_ban(group_id=group_id, user_id=user_id, duration=0)
-    except Exception as e:  # noqa: BLE001
-        logger.warning(f"[stronghold] 群 {group_id} 解禁 {user_id} 失败：{type(e).__name__}: {e}")
 
 
 def _waiting(event: Event) -> bool:
@@ -257,7 +241,6 @@ async def handle_answer(bot: Bot, event: GroupMessageEvent) -> None:
         _pending.pop(key, None)
         if challenge.task and not challenge.task.done():
             challenge.task.cancel()
-        await _unban(bot, key[0], key[1])
         await _say(bot, key[0], f"✅ 验证通过，欢迎 {event.user_id} 进群。")
         return
 

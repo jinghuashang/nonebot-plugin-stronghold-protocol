@@ -68,8 +68,6 @@ class Config(BaseModel):
     stronghold_verify_enabled: bool = True
     #: 答题时限（秒）：超时或答错 3 次移出群聊。
     stronghold_verify_timeout: int = 300
-    #: 验证期间先禁言（机器人需要是本群管理员）。
-    stronghold_verify_mute: bool = True
 
     # ---- 图片菜单（可选：装了 nonebot-plugin-picmenu-next 才生效）-------------------------------
     #: 菜单里显示的服务器名（首页标题、页脚）。

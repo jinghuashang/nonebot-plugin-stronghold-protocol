@@ -108,7 +108,8 @@ MENU_DATA: List[Dict[str, Any]] = [
         "trigger_condition": "群在 `stronghold_manage_groups` 白名单里",
         "brief_des": "给新成员出一道算术题，答对通过；超时或答错 3 次移出群聊",
         "detail_des": (
-            "验证期间默认先禁言（机器人要是群管理员）。时限 `stronghold_verify_timeout` 秒，默认 300。\n\n"
+            "**验证期间不会禁言**（禁言了对方就发不出答案），超时或答错 3 次才移出。\n"
+            "时限 `stronghold_verify_timeout` 秒，默认 300。\n\n"
             "只对白名单群生效 —— 机器人进了很多群，验证与踢人必须授权到具体群。"
         ),
     },
