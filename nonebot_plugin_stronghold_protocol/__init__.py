@@ -9,6 +9,7 @@ from __future__ import annotations
 from nonebot import get_driver, get_plugin_config, logger
 from nonebot.plugin import PluginMetadata
 
+from .announce import AnnouncementPoller
 from .config import Config
 from .menu_data import MENU_DATA
 from .runtime import command_prefix, set_service
@@ -63,6 +64,7 @@ _service = StrongholdService(_config)
 _scheduler = DailyReportScheduler(_service, _config)
 _weekly = WeeklyReportScheduler(_service, _config)
 _monthly = MonthlyReportScheduler(_service, _config)
+_announce = AnnouncementPoller(_service)
 set_service(_service)
 
 
@@ -72,12 +74,14 @@ async def _stronghold_startup() -> None:
     _scheduler.start()
     _weekly.start()
     _monthly.start()
+    _announce.start()
 
 
 @driver.on_shutdown
 async def _stronghold_shutdown() -> None:
     for scheduler in (_scheduler, _weekly, _monthly):
         await scheduler.stop()
+    await _announce.stop()
 
 
 from . import commands, guard  # noqa: E402,F401  —— 导入即注册命令 / 入群验证与群管

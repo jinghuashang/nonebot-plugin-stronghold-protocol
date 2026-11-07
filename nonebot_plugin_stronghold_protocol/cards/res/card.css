@@ -804,6 +804,10 @@ table.grid .lose {
   border-left-color: var(--red);
 }
 
+.note--warn {
+  border-left-color: var(--amber);
+}
+
 .note .icon {
   display: inline-flex;
   margin-right: 8px;
@@ -822,6 +826,10 @@ table.grid .lose {
 
 .note--error .icon {
   color: var(--red);
+}
+
+.note--warn .icon {
+  color: var(--amber);
 }
 
 .note p {

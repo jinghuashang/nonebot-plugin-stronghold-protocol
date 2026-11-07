@@ -42,12 +42,12 @@ ROSTER_GROUPS = [
 ]
 
 
-def note_view(title: str, body: str, tone: str = "info") -> Dict[str, Any]:
-    """通用提示卡片（绑定流程、报错、用法提示）。``tone``：``info`` / ``ok`` / ``error``。"""
+def note_view(title: str, body: str, tone: str = "info", crumb: str = "卫戍协议 / 提示") -> Dict[str, Any]:
+    """通用提示卡片（绑定流程、报错、用法、服务器公告）。``tone``：``info`` / ``ok`` / ``warn`` / ``error``。"""
     lines = [line for line in body.splitlines() if line.strip()]
     return {
         "kind": "note",
-        "crumb": "卫戍协议 / 提示",
+        "crumb": crumb,
         "title": title,
         "tone": tone,
         "lines": lines,

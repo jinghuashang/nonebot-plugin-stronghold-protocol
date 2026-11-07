@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 
@@ -89,6 +89,30 @@ class BridgeClient:
         self.use_env_proxy = use_env_proxy
 
     # ---- 低层 ------------------------------------------------------------------------------------
+
+    async def announcements(self) -> List[Dict[str, Any]]:
+        """``GET /api/announcements``：公告是公开接口，不在 ``/api/bot/v1`` 前缀下。"""
+        if not self.base_url:
+            raise BridgeError(E_UNREACHABLE, "未配置 stronghold_api_base")
+        try:
+            async with httpx.AsyncClient(
+                timeout=self.timeout,
+                verify=self.verify_tls,
+                follow_redirects=False,
+                trust_env=self.use_env_proxy,
+            ) as client:
+                resp = await client.get(f"{self.base_url}/api/announcements")
+        except httpx.TimeoutException as e:
+            raise BridgeError(E_TIMEOUT, f"请求超时（{self.timeout:g}s）", detail=str(e)) from e
+        except httpx.HTTPError as e:
+            raise BridgeError(E_UNREACHABLE, "连不上卫戍协议服务端", detail=str(e)) from e
+        try:
+            body: Any = resp.json()
+        except ValueError as e:
+            raise BridgeError(E_BAD_RESPONSE, "公告接口返回的不是 JSON", status=resp.status_code) from e
+        if not isinstance(body, dict) or not isinstance(body.get("announcements"), list):
+            raise BridgeError(E_BAD_RESPONSE, "公告接口字段不完整", status=resp.status_code)
+        return [a for a in body["announcements"] if isinstance(a, dict)]
 
     def _url(self, path: str) -> str:
         return f"{self.base_url}{self.prefix}{path}"

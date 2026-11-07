@@ -69,6 +69,14 @@ class Config(BaseModel):
     #: 答题时限（秒）：超时或答错 3 次移出群聊。
     stronghold_verify_timeout: int = 300
 
+    # ---- 公告同步（服务器发布会自动转发到白名单群）-----------------------------------------------
+    #: 轮询服务器公告并推送（打开后，白名单群里会收到「服务器公告」卡片）。
+    stronghold_announce_push: bool = True
+    #: 轮询间隔（秒）。
+    stronghold_announce_poll: float = 60.0
+    #: 首次启动时是否把「已经在线的旧公告」补发一次（默认不补发，避免刷屏）。
+    stronghold_announce_backfill: bool = False
+
     # ---- 图片菜单（可选：装了 nonebot-plugin-picmenu-next 才生效）-------------------------------
     #: 菜单里显示的服务器名（首页标题、页脚）。
     stronghold_menu_server_name: str = "卫戍协议：盟约"
